@@ -10,13 +10,14 @@ import numpy as np
 import nibabel as nib
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import MinMaxScaler
+import matplotlib.pyplot as plt
 
 tStart = time.time()
 data1 =""
 np.set_printoptions(precision=4, suppress=True)
 
 # Define which scan is the reference scan, aka the maximum exhale scan
-refScanNum = 14
+refScanNum = 7
 #------------------------------------------------------------------------------
 # SETUP FOR PANC02, MAXEXHALE = 8, CAREFUL WITH WARP NUMBERS
 # PANC01 has maxExhale at 7
@@ -26,7 +27,7 @@ refScanNum = 14
 counter = 0
 for i in range(1,11):
     if i != refScanNum: #Not needed right now since the reference scan is set to -1*averagewarp
-        locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\lung104fixed2\\warp{0}.nii'.format(i)) # plus two for the panc deformations
+        locals()["img"+str(i)] = nib.load('C:\\Users\\Eleanor\\Documents\\GitHub\\MPhysSemesterTwo\\lung104fixed2\warp{0}.nii'.format(i)) # plus two for the panc deformations
         locals()['hdr'+str(i)] = locals()['img'+str(i)].header
         locals()['data'+str(i)] = locals()['img'+str(i)].get_fdata()
         counter = counter + 1
@@ -53,7 +54,7 @@ for i in range(1,11):
 # panc02 has 38*56*38
 
 # first construct the big matrix
-data = np.zeros((data1.shape[0]*data1.shape[1]*data1.shape[2]*3,10)) # change to 10 if refScan included !!!
+data = np.zeros((data1.shape[0]*data1.shape[1]*data1.shape[2]*3,9)) # change to 10 if refScan included !!!
 # 3 displacement values per voxel, want correlation between all
 
 # fill the matrix V
@@ -77,6 +78,19 @@ pca_result = pca.fit_transform(data)
 print("PCA completed in: " + str(np.round(time.time()-t2)) + " seconds")
 print("Explained variation per principal component: {}".format(pca.explained_variance_ratio_))
 # sklearn PCA uses the implicit covariance (correlated) matrix PCA method outlined in Sohn 2005
+
+#produce graph of variance ratios
+pcomponents = np.linspace(1,9,9)
+plt.plot(pcomponents, pca.explained_variance_ratio_,'o-', markersize = 5, clip_on = False)
+plt.title('Percentage Variance - Lung104',fontsize = 16)
+plt.xlabel('Principal Component', fontsize = 16)
+plt.ylabel('Percentage of total variance', fontsize = 16)
+plt.ylim(0,0.3)
+plt.xlim(1,9)
+plt.xticks(fontsize = 14)
+plt.yticks(fontsize = 14)
+plt.grid(True)
+plt.savefig('C:\MPhys\Data\Intra Patient\Lung\PCA results\Lung104_Variance.png')
 
 # Now read the principle components from the PCA back into a data cube for slice by slice visualisation
 t3 = time.time()
@@ -106,5 +120,5 @@ print("Program completed in: " + str(np.round(time.time()-tStart)) + " seconds")
 
 # Now save the resultant PCA data as .npy arrays
 
-np.save('C:\MPhys\\Data\\PCA results\\pcaLung104fixedNew.npy', pca_result_cube)
+np.save('C:\\MPhys\\Data\\Intra Patient\\Lung\\PCA results\\PCA_lung104fixed2.npy', pca_result_cube)
 # accessed through np.load(path)

@@ -12,12 +12,17 @@ from mpl_toolkits.mplot3d import Axes3D
 
 t1 = time.time();
 np.set_printoptions(precision=4, suppress=True);
+# Eleanor path
 pca_result_cube = np.load('C:\\MPhys\\Data\\Intra Patient\\Pancreas\\PCA\\niftyregPanc01StomachCropPCAcube.npy');
+# Ed path
+#pca_result_cube = np.load('C:\\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAcube.npy');
 # Read in the delineation nifti files using nibabel
 stomach = nib.load('C:\\MPhys\\Data\\Intra Patient\\Pancreas\\niftyregPanc01StomachCrop\\stomachMask.nii');
+#stomach = nib.load('C:\\MPhys\\Nifti_Images\\niftyregPanc01StomachCrop\\stomachMask.nii')
 stomachHdr = stomach.header;
 stomachData = stomach.get_fdata();
 stomach_PRV = nib.load('C:\\MPhys\\Data\\Intra Patient\\Pancreas\\niftyregPanc01StomachCrop\\stomach_PRVMask.nii');
+#stomac_PRV = nib.load('C:\\MPhys\\Nifti_Images\\niftyregPanc01StomachCrop\\stomach_PRVMask.nii')
 stomach_PRVHdr = stomach_PRV.header;
 stomach_PRVData = stomach_PRV.get_fdata();
 # numpy array conversion
@@ -38,6 +43,7 @@ for component in range(9):
 print("Program completed in: " + str(np.round(time.time()-t1)) + " seconds");
 #save shell PCA 
 np.save('C:\\MPhys\\Data\\Intra Patient\\Pancreas\\PCA\\pcaShellPanc01',pca_result_cube)
+#np.save('C:\\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAshell.npy',pca_result_cube)
 
 #visualise the shell in 3D - via mesh/voxels
 #re-name shell cube

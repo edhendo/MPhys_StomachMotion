@@ -34,4 +34,5 @@ for component in range(9):
                 for xyz in range(3):
                     pca_result_cube[i,j,k,component,xyz] = pca_result_cube[i,j,k,component,xyz]*outerShell[i,j,k];
 
-print("Program completed in: " + str(np.round(time.time()-t1)) + " seconds");                
+print("Program completed in: " + str(np.round(time.time()-t1)) + " seconds");  
+np.save('C:\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAshell.npy',pca_result_cube)              

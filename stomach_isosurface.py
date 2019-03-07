@@ -8,11 +8,14 @@ Created on Thu Mar  7 14:58:10 2019
 import time
 import numpy as np
 import nibabel as nib
-from skimage import feature
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+from skimage import measure
 
 t1 = time.time();
 np.set_printoptions(precision=4, suppress=True);
 pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAcube.npy');
+
 # Read in the delineation nifti files using nibabel
 stomach = nib.load('C:\MPhys\\Nifti_Images\\niftyregPanc01StomachCrop\\stomachMask.nii');
 stomachHdr = stomach.header;

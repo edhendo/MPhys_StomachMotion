@@ -26,3 +26,8 @@ stomach_PRVData = stomach_PRV.get_fdata();
 # numpy array conversion
 stom = np.array(stomachData);
 stomPRV= np.array(stomach_PRVData);
+
+# Use marching cubes to obtain the surface mesh of the stomach delineation
+
+
+

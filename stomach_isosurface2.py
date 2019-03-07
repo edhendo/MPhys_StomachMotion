@@ -69,7 +69,18 @@ ax.set_zlim(verts[:,2].min() - 2, verts[:,2].max() + 2)
 plt.tight_layout()
 plt.show()
 
+#----------------- assign PCA colour values --------------------------------------------------------------------------------------
+#find the PCA vector values that correspond with mesh vertices
+#put the PCA values that match the rounded vertex values into an array
+colours = np.ndarray(shape = (verts.shape[0],3))
+#round vertex numbers to nearest int
+verts_round = (np.around(verts)).astype(int)
 
+for x in range(verts.shape[0]):
+    for l in range(3):
+        colours[x,l] = pca_result_cube[verts_round[x,0],verts_round[x,1],verts_round[x,2],0,l] 
+                                        
+#write into a text file
+np.savetxt('C:\MPhys\\Data\\Intra Patient\\Pancreas\\3D Vis\\stomachColours01.txt', colours, fmt = '%0.6f')
 
-
-
+#issue with scaling for PCA - addition of multiple components results in RGB values > 1

@@ -130,7 +130,7 @@ wrlFile.write('#VRML V2.0 utf8\nWorldInfo {title "stomach-PCA-VRML"}\n  Shape {\
 
 for i in range(verts.shape[0]):
     for j in range(verts.shape[1]):
-        wrlFile.write(str(np.around(verts[i][j])) + "  ");
+        wrlFile.write(str("{:.6f}".format(verts[i][j])) + "  ");
     wrlFile.write("\n");              
 
 wrlFile.write("]}\n	color Color {\n	color[\n");

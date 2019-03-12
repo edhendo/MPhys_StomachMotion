@@ -84,21 +84,20 @@ print("Explained variation per principal component: {}".format(pca.explained_var
 t3 = time.time()
 scaler = MinMaxScaler()
 for PCAcompIndex in range(9):
-    locals()['component' + str(PCAcompIndex + 1)] = np.zeros((data1.shape[0] * data1.shape[1] * data1.shape[2]*3,1))
-    for voxelNum in range(data1.shape[0] * data1.shape[1] * data1.shape[2]*3):
+    locals()['component' + str(PCAcompIndex + 1)] = np.zeros((data1.shape[0] * data1.shape[1] * data1.shape[2]))
+    for voxelNum in range(data1.shape[0] * data1.shape[1] * data1.shape[2]):
         locals()['component' + str(PCAcompIndex + 1)][voxelNum] = pca_result[voxelNum][PCAcompIndex]
     locals()['scaledComponent' + str(PCAcompIndex + 1)] = scaler.fit_transform((locals()['component' + str(PCAcompIndex + 1)]).reshape(-1,1))
 
 voxelNum = 0
-pca_result_cube = np.zeros((data1.shape[0],data1.shape[1],data1.shape[2],9,3))
+pca_result_cube = np.zeros((data1.shape[0],data1.shape[1],data1.shape[2],9))
 for PCAcompIndex2 in range(9):
     voxelNum = 0
     for x2 in range(data1.shape[0]):
         for y2 in range(data1.shape[1]):
             for z2 in range(data1.shape[2]):
-                    for k in range(3):
-                        pca_result_cube[x2][y2][z2][PCAcompIndex2][k] = locals()['scaledComponent' + str(PCAcompIndex2 + 1)][voxelNum]
-                        voxelNum = voxelNum + 1
+                pca_result_cube[x2][y2][z2][PCAcompIndex2] = locals()['scaledComponent' + str(PCAcompIndex2 + 1)][voxelNum]
+                voxelNum = voxelNum + 1
 
 print("Data reshaped in: " + str(np.round(time.time()-t3)) + " seconds")
 
@@ -121,4 +120,4 @@ plt.xlim(1,9)
 plt.xticks(fontsize = 14)
 plt.yticks(fontsize = 14)
 plt.grid(True)
-plt.savefig('C:\MPhys\\Python_Images\\niftyregPanc01StomachCrop\\PCvariance.png')
+plt.savefig('C:\MPhys\\Python_Images\\niftyregPanc01StomachCrop\\magnitudePCvariance.png')

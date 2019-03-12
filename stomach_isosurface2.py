@@ -14,6 +14,7 @@ from skimage import measure
 import math
 from sklearn.preprocessing import MinMaxScaler
 from matplotlib import cm
+from shutil import copyfile
 
 def magnitude(x,y,z):
     return math.sqrt((x**2 + y**2 + z**2))
@@ -48,6 +49,7 @@ verts, faces, normals, values = measure.marching_cubes_lewiner(stom, 50)
 #------------------ save vertex and face coordinates into txt files --------------------------------------------------------------
 #np.savetxt('C:\MPhys\\Data\\Intra Patient\\Pancreas\\3D Vis\\stomachVerts01.txt',verts, fmt = '%0.6f')
 np.savetxt('C:\MPhys\\Visualisation\\stomachVerts01.txt',verts, fmt = '%0.6f');
+
 # create new array for faces - needs to have 4 components (-1 as fourth)
 facesnew = np.ndarray(shape = (faces.shape[0],4))
 for i in range(faces.shape[0]):
@@ -103,7 +105,6 @@ for x1 in range(verts.shape[0]):
 if toggle:
     for x2 in range(verts.shape[0]):
         coloursMag[x2] = mag_pca_result_cube[verts_round[x2,0],verts_round[x2,1],verts_round[x2,2],0];
-        print(mag_pca_result_cube[verts_round[x2,0],verts_round[x2,1],verts_round[x2,2],0]);
 
 scaler = MinMaxScaler();
 coloursMag = scaler.fit_transform(coloursMag.reshape(-1,1));
@@ -123,6 +124,30 @@ np.savetxt('C:\MPhys\\Visualisation\\stomachColours01.txt', colours, fmt = '%0.6
 ## --> then separate x,y,z components
 ## --> T-SNE similarly
 
+# Do the file writing here
+wrlFile = open('C:\MPhys\\Visualisation\\stomachMagPCA.wrl','w');
+wrlFile.write('#VRML V2.0 utf8\nWorldInfo {title "stomach-PCA-VRML"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
+
+for i in range(verts.shape[0]):
+    for j in range(verts.shape[1]):
+        wrlFile.write(str(np.around(verts[i][j])) + "  ");
+    wrlFile.write("\n");              
+
+wrlFile.write("]}\n	color Color {\n	color[\n");
+           
+for i in range(colours.shape[0]):
+    for j in range(colours.shape[1]):
+        wrlFile.write(str("{:.6f}".format(colours[i][j])) + "  ");
+    wrlFile.write("\n");
+    
+wrlFile.write("]\n	}\n	colorPerVertex TRUE	\n	coordIndex [\n");
+    
+for i in range(faces.shape[0]):
+    for j in range(3):
+        wrlFile.write(str(int(faces[i][j])) + "  ");
+    wrlFile.write(str(int(-1))+ "\n");              
+
+wrlFile.write("	]\n	}\n}");
+wrlFile.close();
 
 print("Program completed in: " + str(np.round(time.time()-tStart)) + " seconds")
-

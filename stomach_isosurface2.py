@@ -22,6 +22,9 @@ tStart = time.time();
 np.set_printoptions(precision=4, suppress=True);
 pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAcube.npy');
 #pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Pancreas\\PCA\\niftyregPanc01StomachCropPCAcube.npy')
+mag_pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Panc01StomachCropMagnitudePCAcube.npy');
+
+toggle = True; # set to True for using pca on magnitudes rather than magnitude of pca comps
 
 # Read in the delineation nifti files using nibabel
 stomach = nib.load('C:\MPhys\\stomach.nii');
@@ -34,7 +37,8 @@ stomach_PRVHdr = stomach_PRV.header;
 stomach_PRVData = stomach_PRV.get_fdata();
 '''
 # numpy array conversion
-stom = np.rot90(np.rot90(np.array(stomachData),2,(0,2)),1,(1,2));
+#stom = np.rot90(np.rot90(np.array(stomachData),2,(0,2)),1,(1,2));
+stom = np.array(stomachData);
 #stomPRV= np.array(stomach_PRVData);
 
 # Use marching cubes to obtain the surface mesh of the stomach/stomach PRV delineations
@@ -95,6 +99,11 @@ for x in range(pca_result_cube.shape[0]):
 
 for x1 in range(verts.shape[0]):
     coloursMag[x1] = PCAmagnitudes[verts_round[x1,0],verts_round[x1,1],verts_round[x1,2]];
+
+if toggle:
+    for x2 in range(verts.shape[0]):
+        coloursMag[x2] = mag_pca_result_cube[verts_round[x2,0],verts_round[x2,1],verts_round[x2,2],0];
+        print(mag_pca_result_cube[verts_round[x2,0],verts_round[x2,1],verts_round[x2,2],0]);
 
 scaler = MinMaxScaler();
 coloursMag = scaler.fit_transform(coloursMag.reshape(-1,1));

@@ -83,4 +83,3 @@ for x in range(verts.shape[0]):
 #write into a text file
 np.savetxt('C:\MPhys\\Data\\Intra Patient\\Pancreas\\3D Vis\\stomachColours01.txt', colours, fmt = '%0.6f')
 
-#issue with scaling for PCA - addition of multiple components results in RGB values > 1

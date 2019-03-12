@@ -99,7 +99,7 @@ for x1 in range(verts.shape[0]):
 scaler = MinMaxScaler();
 coloursMag = scaler.fit_transform(coloursMag.reshape(-1,1));
 
-colourmap = cm.cubehelix(coloursMag);
+colourmap = cm.bwr(coloursMag);
 
 for x in range(verts.shape[0]):
     for l in range(3):

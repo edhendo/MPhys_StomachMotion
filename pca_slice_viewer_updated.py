@@ -52,5 +52,5 @@ def next_slice(ax):
     ax.images[0].set_array(volume[ax.index]) 
 
 
-rotated = np.rot90(pca,1,(1,2))   
+rotated = np.rot90(np.rot90(pca,2,(0,2)),1,(1,2))
 multi_slice_viewer(rotated[:,:,:,0])

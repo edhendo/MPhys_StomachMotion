@@ -11,6 +11,7 @@ import nibabel as nib
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
+import math
 
 def magnitude(x,y,z):
     return math.sqrt((x**2 + y**2 + z**2))

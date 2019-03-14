@@ -13,25 +13,97 @@ from skimage import measure
 import math
 from sklearn.preprocessing import MinMaxScaler
 from matplotlib import cm
+from sklearn.manifold import TSNE
+from MulticoreTSNE import MulticoreTSNE as multiTSNE
+#from mpl_toolkits.mplot3d import Axes3D
+
+def cart3sph(x,y,z):
+    hxy = np.hypot(x, y)
+    r = np.hypot(hxy, z)
+    el = np.arctan2(z, hxy)
+    az = np.arctan2(y, x)
+    return az, el, r
 
 def magnitude(x,y,z):
     return math.sqrt((x**2 + y**2 + z**2))
 
-tStart = time.time();
-np.set_printoptions(precision=4, suppress=True);
-pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAcube.npy');
-#pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Pancreas\\PCA\\niftyregPanc01StomachCropPCAcube.npy')
+tStart = time.time()
+data1 =""
+np.set_printoptions(precision=4, suppress=True)
+
+# Define which scan is the reference scan, aka the maximum exhale scan
+#------------------------------------------------------------------------------
+# PANC01 has maxExhale at 9
+maxExhale = 9
+#------------------------------------------------------------------------------
+# First extract all required warp vectors from the respective nifti images
+counter = 0
+for i in range(1,11):
+    locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\cropped\\104non\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
+    #locals()["img"+str(i)] = nib.load('D:\data\\Pancreas\\MPhys\\Nifti_Images\\lung104non\\warp{0}.nii'.format(i)) # plus two for the panc deformations
+    locals()['hdr'+str(i)] = locals()['img'+str(i)].header
+    locals()['data'+str(i)] = locals()['img'+str(i)].get_fdata()
+    counter = counter + 1
+    print("extracted warp vectors from DVF " + str(counter) + " out of 9")
+    if counter == 10:
+        print("Warning: included refScan")
+
+# fill the matrix for t-SNE analysis
+dataMatrix = np.zeros((data1.shape[0]*data1.shape[1]*data1.shape[2],9*10))
+
+tMatFill = time.time()
+m = 0
+xIndex = 0
+yIndex = 0
+zIndex = 0
+for x in range(data1.shape[0]):
+    for y in range(data1.shape[1]):
+        for z in range(data1.shape[2]):
+            eleIndex = 0
+            for DVFnum in range(1,11):
+                az, el, r = cart3sph(locals()['data'+str(DVFnum)][x][y][z][0][0],locals()['data'+str(DVFnum)][x][y][z][0][1],locals()['data'+str(DVFnum)][x][y][z][0][2])
+                for j in range(3):
+                    dataMatrix[m][eleIndex] = locals()['data'+str(DVFnum)][x][y][z][0][j]
+                    eleIndex += 1
+                dataMatrix[m][eleIndex] = az
+                eleIndex += 1
+                dataMatrix[m][eleIndex] = el
+                eleIndex += 1
+                dataMatrix[m][eleIndex] = r
+                eleIndex += 1
+                dataMatrix[m][eleIndex] = x    # also give it the original voxel poisitions?!
+                eleIndex += 1
+                dataMatrix[m][eleIndex] = y
+                eleIndex += 1
+                dataMatrix[m][eleIndex] = z
+                eleIndex += 1
+            m = m + 1
+print("Filled huge matrix in: " + str(np.round(time.time()-tMatFill)) + " seconds")
+
+# perform voxel-by-voxel t-SNE analysis
+tTSNE = time.time()
+tsneResult = TSNE(n_components=1, n_iter=1500, learning_rate=175).fit_transform(dataMatrix)
+print("t-SNE completed in:" + str(np.round(time.time()-tTSNE)) + " seconds")
+np.save('C:\MPhys\\Data\\TSNE results\\panc01_StomachCrop_TSNEresult.npy', tsneResult)
+
+tMultiTSNE = time.time()
+multi_tsneResult = multiTSNE(n_components=1, n_iter=1500, learning_rate=175).fit_transform(dataMatrix)
+print("multicore t-SNE 4 completed in:" + str(np.round(time.time()-tMultiTSNE)) + " seconds")
+np.save('C:\MPhys\\Data\\TSNE results\\panc01_StomachCrop_multiTSNEresult.npy.npy', multi_tsneResult)
+
+plt.figure()
+plt.scatter(tsneResult[:,0],tsneResult[:,1],marker='.',s=0.25)
+plt.xlabel("t-SNE Component 1", fontsize = "20")
+plt.ylabel("t-SNE Component 2", fontsize = "20")
+
+###############################################################################
 
 # Read in the delineation nifti files using nibabel
 stomach = nib.load('C:\MPhys\\stomach.nii');
-#stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Pancreas\\niftyregPanc01StomachCrop\\stomach.nii')
+# stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Pancreas\\niftyregPanc01StomachCrop\\stomach.nii')
 stomachHdr = stomach.header;
 stomachData = stomach.get_fdata();
-'''
-stomach_PRV = nib.load('C:\MPhys\\Data\\Intra Patient\\Pancreas\\niftyregPanc01StomachCrop\\stomach_PRVMask.nii');
-stomach_PRVHdr = stomach_PRV.header;
-stomach_PRVData = stomach_PRV.get_fdata();
-'''
+
 # numpy array conversion
 #stom = np.rot90(np.rot90(np.array(stomachData),2,(0,2)),1,(1,2));
 stom = np.array(stomachData);
@@ -73,37 +145,22 @@ plt.tight_layout()
 plt.show()
 
 #----------------- assign PCA colour values --------------------------------------------------------------------------------------
-#find the PCA vector values that correspond with mesh vertices
-#put the PCA values that match the rounded vertex values into an array
+# find the PCA vector values that correspond with mesh vertices
+# put the PCA values that match the rounded vertex values into an array
 # separate x, y and z components here
 pca_x = np.ndarray(shape = (verts.shape[0]))
-pca_y = np.ndarray(shape = (verts.shape[0]))
-pca_z = np.ndarray(shape = (verts.shape[0]))
-colours_x = np.ndarray(shape = (verts.shape[0],3))
-colours_y = np.ndarray(shape = (verts.shape[0],3))
-colours_z = np.ndarray(shape = (verts.shape[0],3))
+colours = np.ndarray(shape = (verts.shape[0],3))
 #round vertex numbers to nearest int
 verts_round = (np.around(verts)).astype(int)
 
-for i in range(verts.shape[0]):
-    pca_x[i] = pca_result_cube[verts_round[i,0],verts_round[i,1],verts_round[i,2],0,0];
-    pca_y[i] = pca_result_cube[verts_round[i,0],verts_round[i,1],verts_round[i,2],0,1];
-    pca_z[i] = pca_result_cube[verts_round[i,0],verts_round[i,1],verts_round[i,2],0,2];
-
 scaler = MinMaxScaler();
 pca_x = scaler.fit_transform(pca_x.reshape(-1,1));
-pca_y = scaler.fit_transform(pca_y.reshape(-1,1));
-pca_z = scaler.fit_transform(pca_z.reshape(-1,1));
-
-colourmap_x = cm.viridis(pca_x);
-colourmap_y = cm.nipy_spectral(pca_y);
+############################################################# GOT HERE
 colourmap_z = cm.terrain(pca_z);
 
 for j in range(verts.shape[0]):
     for rgb in range(3):
         colours_x[j,rgb] = colourmap_x[j,0,rgb];
-        colours_y[j,rgb] = colourmap_y[j,0,rgb];
-        colours_z[j,rgb] = colourmap_z[j,0,rgb];
 
 # Do the file writing here
 # --> Firstly the x component

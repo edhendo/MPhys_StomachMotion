@@ -14,7 +14,6 @@ from skimage import measure
 import math
 from sklearn.preprocessing import MinMaxScaler
 from matplotlib import cm
-from shutil import copyfile
 
 def magnitude(x,y,z):
     return math.sqrt((x**2 + y**2 + z**2))
@@ -125,7 +124,7 @@ np.savetxt('C:\MPhys\\Visualisation\\stomachColours01.txt', colours, fmt = '%0.6
 ## --> T-SNE similarly
 
 # Do the file writing here
-wrlFile = open('C:\MPhys\\Visualisation\\stomachMagPCA.wrl','w');
+wrlFile = open('C:\MPhys\\Visualisation\\stomachPCA_mag.wrl','w');
 wrlFile.write('#VRML V2.0 utf8\nWorldInfo {title "stomach-PCA-VRML"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):

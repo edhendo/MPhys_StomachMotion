@@ -17,17 +17,16 @@ data1 =""
 np.set_printoptions(precision=4, suppress=True)
 
 # Define which scan is the reference scan, aka the maximum exhale scan
-refScanNum = 7
+refScanNum = 9
 #------------------------------------------------------------------------------
-# SETUP FOR PANC02, MAXEXHALE = 8, CAREFUL WITH WARP NUMBERS
-# PANC01 has maxExhale at 7
+# PANC01 has maxExhale at 9 (including the first two boxes)
 # 7 for 104
 #------------------------------------------------------------------------------
 # First extract all required warp vectors from the respective nifti images
 counter = 0
 for i in range(1,11):
-    if i != refScanNum: #Not needed right now since the reference scan is set to -1*averagewarp
-        locals()["img"+str(i)] = nib.load('C:\\Users\\Eleanor\\Documents\\GitHub\\MPhysSemesterTwo\\lung104fixed2\warp{0}.nii'.format(i)) # plus two for the panc deformations
+    if True: #i != refScanNum: #Not needed right now since the reference scan is set to -1*averagewarp
+        locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\niftyregPanc01StomachCrop\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
         locals()['hdr'+str(i)] = locals()['img'+str(i)].header
         locals()['data'+str(i)] = locals()['img'+str(i)].get_fdata()
         counter = counter + 1
@@ -35,8 +34,8 @@ for i in range(1,11):
         if counter == 10:
             print("Warning: included refScan")
 
-# Perform PCA over the whole image with 3M rows, 9 columns
-# voxel| DVF1 | DVF2  | ...  | DVF10   One DVF is ref scan, not included
+# Perform PCA over the whole image with 3M rows, 10 columns
+# voxel| DVF1 | DVF2  | ...  | DVF10   One DVF is ref scan - 10 columns
 #   1  | x11  |  x12  | x1.  | x110
 #   1  | y11  |  y12  | y1.  | y110
 #   1  | z11  |  z12  | z1.  | z110
@@ -54,7 +53,7 @@ for i in range(1,11):
 # panc02 has 38*56*38
 
 # first construct the big matrix
-data = np.zeros((data1.shape[0]*data1.shape[1]*data1.shape[2]*3,9)) # change to 10 if refScan included !!!
+data = np.zeros((data1.shape[0]*data1.shape[1]*data1.shape[2]*3,10)) # change to 10 if refScan included !!!
 # 3 displacement values per voxel, want correlation between all
 
 # fill the matrix V
@@ -62,7 +61,7 @@ t1 = time.time()
 DVFindex = 0
 for DVFnum in range(1,11):
     n = 0
-    if DVFnum != refScanNum:           
+    if True: #DVFnum != refScanNum: Again not needed right now since we want to include the refernence scan (mean centering)       
         for x1 in range(data1.shape[0]):
             for y1 in range(data1.shape[1]):
                 for z1 in range(data1.shape[2]):
@@ -78,19 +77,6 @@ pca_result = pca.fit_transform(data)
 print("PCA completed in: " + str(np.round(time.time()-t2)) + " seconds")
 print("Explained variation per principal component: {}".format(pca.explained_variance_ratio_))
 # sklearn PCA uses the implicit covariance (correlated) matrix PCA method outlined in Sohn 2005
-
-#produce graph of variance ratios
-pcomponents = np.linspace(1,9,9)
-plt.plot(pcomponents, pca.explained_variance_ratio_,'o-', markersize = 5, clip_on = False)
-plt.title('Percentage Variance - Lung104',fontsize = 16)
-plt.xlabel('Principal Component', fontsize = 16)
-plt.ylabel('Percentage of total variance', fontsize = 16)
-plt.ylim(0,0.3)
-plt.xlim(1,9)
-plt.xticks(fontsize = 14)
-plt.yticks(fontsize = 14)
-plt.grid(True)
-plt.savefig('C:\MPhys\Data\Intra Patient\Lung\PCA results\Lung104_Variance.png')
 
 # Now read the principle components from the PCA back into a data cube for slice by slice visualisation
 t3 = time.time()
@@ -117,8 +103,20 @@ print("Data reshaped in: " + str(np.round(time.time()-t3)) + " seconds")
 # end
 print("Program completed in: " + str(np.round(time.time()-tStart)) + " seconds")
 
-
 # Now save the resultant PCA data as .npy arrays
 
-np.save('C:\\MPhys\\Data\\Intra Patient\\Lung\\PCA results\\PCA_lung104fixed2.npy', pca_result_cube)
+np.save('C:\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAcube.npy', pca_result_cube)
 # accessed through np.load(path)
+
+#produce graph of variance ratios
+pcomponents = np.linspace(1,9,9)
+plt.plot(pcomponents, pca.explained_variance_ratio_,'o-', markersize = 5, clip_on = False)
+plt.title('Percentage Variance - Panc01 Stomach Crop',fontsize = 16)
+plt.xlabel('Principal Component', fontsize = 16)
+plt.ylabel('Percentage of total variance', fontsize = 16)
+plt.ylim(0,1.0)
+plt.xlim(1,9)
+plt.xticks(fontsize = 14)
+plt.yticks(fontsize = 14)
+plt.grid(True)
+plt.savefig('C:\MPhys\\Python_Images\\niftyregPanc01StomachCrop\\PCvariance.png')

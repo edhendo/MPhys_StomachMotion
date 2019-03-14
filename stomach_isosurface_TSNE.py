@@ -95,9 +95,9 @@ pca_x = scaler.fit_transform(pca_x.reshape(-1,1));
 pca_y = scaler.fit_transform(pca_y.reshape(-1,1));
 pca_z = scaler.fit_transform(pca_z.reshape(-1,1));
 
-colourmap_x = cm.bwr(pca_x);
-colourmap_y = cm.bwr(pca_y);
-colourmap_z = cm.bwr(pca_z);
+colourmap_x = cm.viridis(pca_x);
+colourmap_y = cm.nipy_spectral(pca_y);
+colourmap_z = cm.terrain(pca_z);
 
 for j in range(verts.shape[0]):
     for rgb in range(3):

@@ -17,6 +17,8 @@ from sklearn.manifold import TSNE
 from MulticoreTSNE import MulticoreTSNE as multiTSNE
 #from mpl_toolkits.mplot3d import Axes3D
 
+toggle = True; ### Toggle to pre-load the tsne data cube if already filled
+
 def cart3sph(x,y,z):
     hxy = np.hypot(x, y)
     r = np.hypot(hxy, z)
@@ -48,35 +50,40 @@ for i in range(1,11):
         print("Warning: included refScan")
 
 # fill the matrix for t-SNE analysis
-dataMatrix = np.zeros((data1.shape[0]*data1.shape[1]*data1.shape[2],9*10))
-
 tMatFill = time.time()
-m = 0
-xIndex = 0
-yIndex = 0
-zIndex = 0
-for x in range(data1.shape[0]):
-    for y in range(data1.shape[1]):
-        for z in range(data1.shape[2]):
-            eleIndex = 0
-            for DVFnum in range(1,11):
-                az, el, r = cart3sph(locals()['data'+str(DVFnum)][x][y][z][0][0],locals()['data'+str(DVFnum)][x][y][z][0][1],locals()['data'+str(DVFnum)][x][y][z][0][2])
-                for j in range(3):
-                    dataMatrix[m][eleIndex] = locals()['data'+str(DVFnum)][x][y][z][0][j]
+if (toggle):
+    dataMatrix = np.load('C:\MPhys\\Data\\TSNE results\\panc01_StomachCrop_TSNEdataCube.npy');
+else:
+    dataMatrix = np.zeros((data1.shape[0]*data1.shape[1]*data1.shape[2],9*10))
+    m = 0
+    xIndex = 0
+    yIndex = 0
+    zIndex = 0
+    
+    for x in range(data1.shape[0]):
+        for y in range(data1.shape[1]):
+            for z in range(data1.shape[2]):
+                eleIndex = 0
+                for DVFnum in range(1,11):
+                    az, el, r = cart3sph(locals()['data'+str(DVFnum)][x][y][z][0][0],locals()['data'+str(DVFnum)][x][y][z][0][1],locals()['data'+str(DVFnum)][x][y][z][0][2])
+                    for j in range(3):
+                        dataMatrix[m][eleIndex] = locals()['data'+str(DVFnum)][x][y][z][0][j]
+                        eleIndex += 1
+                    dataMatrix[m][eleIndex] = az
                     eleIndex += 1
-                dataMatrix[m][eleIndex] = az
-                eleIndex += 1
-                dataMatrix[m][eleIndex] = el
-                eleIndex += 1
-                dataMatrix[m][eleIndex] = r
-                eleIndex += 1
-                dataMatrix[m][eleIndex] = x    # also give it the original voxel poisitions?!
-                eleIndex += 1
-                dataMatrix[m][eleIndex] = y
-                eleIndex += 1
-                dataMatrix[m][eleIndex] = z
-                eleIndex += 1
-            m = m + 1
+                    dataMatrix[m][eleIndex] = el
+                    eleIndex += 1
+                    dataMatrix[m][eleIndex] = r
+                    eleIndex += 1
+                    dataMatrix[m][eleIndex] = x    # also give it the original voxel poisitions?!
+                    eleIndex += 1
+                    dataMatrix[m][eleIndex] = y
+                    eleIndex += 1
+                    dataMatrix[m][eleIndex] = z
+                    eleIndex += 1
+                m = m + 1
+    np.save('C:\MPhys\\Data\\TSNE results\\panc01_StomachCrop_TSNEdataCube.npy', dataMatrix)
+    
 print("Filled huge matrix in: " + str(np.round(time.time()-tMatFill)) + " seconds")
 
 # perform voxel-by-voxel t-SNE analysis

@@ -14,6 +14,7 @@ import math
 from sklearn.preprocessing import MinMaxScaler
 from matplotlib import cm
 from sklearn.manifold import TSNE
+from MulticoreTSNE import MulticoreTSNE as multiTSNE
 #from mpl_toolkits.mplot3d import Axes3D
 
 def cart3sph(x,y,z):
@@ -80,7 +81,7 @@ print("Filled huge matrix in: " + str(np.round(time.time()-tMatFill)) + " second
 
 # perform voxel-by-voxel t-SNE analysis
 tTSNE = time.time()
-tsneResult = TSNE(n_components=1, n_iter=1500, learning_rate=175).fit_transform(dataMatrix)
+tsneResult = multiTSNE(n_components=1, n_iter=1500, learning_rate=175).fit_transform(dataMatrix);
 print("t-SNE completed in:" + str(np.round(time.time()-tTSNE)) + " seconds")
 np.save('C:\MPhys\\Data\\TSNE results\\panc01_StomachCrop_TSNEresult.npy', tsneResult)
 '''

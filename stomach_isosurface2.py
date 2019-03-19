@@ -20,15 +20,16 @@ def magnitude(x,y,z):
 
 tStart = time.time();
 np.set_printoptions(precision=4, suppress=True);
-pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAcube.npy');
-#pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Pancreas\\PCA\\niftyregPanc01StomachCropPCAcube.npy')
-mag_pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Panc01StomachCropMagnitudePCAcube.npy');
+#pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAcube.npy');
+pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaPanc01_NR.npy')
+#mag_pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Panc01StomachCropMagnitudePCAcube.npy');
+mag_pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaMagPanc01_NR.npy');
 
 toggle = True; # set to True for using pca on magnitudes rather than magnitude of pca comps
 
 # Read in the delineation nifti files using nibabel
-stomach = nib.load('C:\MPhys\\stomach.nii');
-#stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Pancreas\\niftyregPanc01StomachCrop\\stomach.nii')
+#stomach = nib.load('C:\MPhys\\stomach.nii');
+stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Panc01_NR\\stomach.nii')
 stomachHdr = stomach.header;
 stomachData = stomach.get_fdata();
 '''

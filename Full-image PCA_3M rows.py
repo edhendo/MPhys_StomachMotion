@@ -26,7 +26,8 @@ refScanNum = 9
 counter = 0
 for i in range(1,11):
     if True: #i != refScanNum: #Not needed right now since the reference scan is set to -1*averagewarp
-        locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\niftyregPanc01StomachCrop\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
+        locals()["img"+str(i)] = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Panc01_NR\\warp{0}.nii'.format(i+2))
+        #locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\niftyregPanc01StomachCrop\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
         locals()['hdr'+str(i)] = locals()['img'+str(i)].header
         locals()['data'+str(i)] = locals()['img'+str(i)].get_fdata()
         counter = counter + 1
@@ -105,7 +106,8 @@ print("Program completed in: " + str(np.round(time.time()-tStart)) + " seconds")
 
 # Now save the resultant PCA data as .npy arrays
 
-np.save('C:\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAcube.npy', pca_result_cube)
+np.save('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaPanc01_NR.npy', pca_result_cube)
+#np.save('C:\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAcube.npy', pca_result_cube)
 # accessed through np.load(path)
 
 #produce graph of variance ratios
@@ -119,4 +121,5 @@ plt.xlim(1,9)
 plt.xticks(fontsize = 14)
 plt.yticks(fontsize = 14)
 plt.grid(True)
-plt.savefig('C:\MPhys\\Python_Images\\niftyregPanc01StomachCrop\\PCvariance.png')
+#plt.savefig('C:\MPhys\\Python_Images\\niftyregPanc01StomachCrop\\PCvariance.png')
+plt.savefig('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA Graphs and Images\\Panc01_Variance.png')

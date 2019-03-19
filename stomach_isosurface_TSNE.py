@@ -14,7 +14,6 @@ import math
 from sklearn.preprocessing import MinMaxScaler
 from matplotlib import cm
 from sklearn.manifold import TSNE
-from MulticoreTSNE import MulticoreTSNE as multiTSNE
 #from mpl_toolkits.mplot3d import Axes3D
 
 def cart3sph(x,y,z):
@@ -39,8 +38,7 @@ maxExhale = 9
 # First extract all required warp vectors from the respective nifti images
 counter = 0
 for i in range(1,11):
-    locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\cropped\\104non\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
-    #locals()["img"+str(i)] = nib.load('D:\data\\Pancreas\\MPhys\\Nifti_Images\\lung104non\\warp{0}.nii'.format(i)) # plus two for the panc deformations
+    locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\niftyregPanc01StomachCrop\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
     locals()['hdr'+str(i)] = locals()['img'+str(i)].header
     locals()['data'+str(i)] = locals()['img'+str(i)].get_fdata()
     counter = counter + 1
@@ -85,19 +83,24 @@ tTSNE = time.time()
 tsneResult = TSNE(n_components=1, n_iter=1500, learning_rate=175).fit_transform(dataMatrix)
 print("t-SNE completed in:" + str(np.round(time.time()-tTSNE)) + " seconds")
 np.save('C:\MPhys\\Data\\TSNE results\\panc01_StomachCrop_TSNEresult.npy', tsneResult)
-
-tMultiTSNE = time.time()
-multi_tsneResult = multiTSNE(n_components=1, n_iter=1500, learning_rate=175).fit_transform(dataMatrix)
-print("multicore t-SNE 4 completed in:" + str(np.round(time.time()-tMultiTSNE)) + " seconds")
-np.save('C:\MPhys\\Data\\TSNE results\\panc01_StomachCrop_multiTSNEresult.npy.npy', multi_tsneResult)
-
+'''
 plt.figure()
 plt.scatter(tsneResult[:,0],tsneResult[:,1],marker='.',s=0.25)
 plt.xlabel("t-SNE Component 1", fontsize = "20")
 plt.ylabel("t-SNE Component 2", fontsize = "20")
+'''
+###############################################################################
+# --> Now reassemble the data cube to align with the stomach model
+voxelNum = 0
+tsne_result_cube = np.zeros((data1.shape[0],data1.shape[1],data1.shape[2]));
+
+for a in range(data1.shape[0]):
+    for b in range(data1.shape[1]):
+        for c in range(data1.shape[2]):
+            tsne_result_cube[a][b][c] = tsneResult[voxelNum];
+            voxelNum += 1;
 
 ###############################################################################
-
 # Read in the delineation nifti files using nibabel
 stomach = nib.load('C:\MPhys\\stomach.nii');
 # stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Pancreas\\niftyregPanc01StomachCrop\\stomach.nii')
@@ -144,103 +147,51 @@ ax.set_zlim(verts[:,2].min() - 2, verts[:,2].max() + 2)
 plt.tight_layout()
 plt.show()
 
-#----------------- assign PCA colour values --------------------------------------------------------------------------------------
-# find the PCA vector values that correspond with mesh vertices
-# put the PCA values that match the rounded vertex values into an array
-# separate x, y and z components here
-pca_x = np.ndarray(shape = (verts.shape[0]))
-colours = np.ndarray(shape = (verts.shape[0],3))
-#round vertex numbers to nearest int
+#----------------- assign t-SNE colour values ---------------------------------
+tsneValues = np.ndarray(shape = (verts.shape[0]));
+tsne_colours = np.ndarray(shape = (verts.shape[0],3));
+# round vertex numbers to nearest int
 verts_round = (np.around(verts)).astype(int)
+# find the t-SNE values that correspond with mesh vertices
+# then put the t-SNE values that match the rounded vertex values into an array
+for i in range(verts.shape[0]):
+    tsneValues[i] = tsne_result_cube[verts_round[i,0],verts_round[i,1],verts_round[i,2]];
 
 scaler = MinMaxScaler();
-pca_x = scaler.fit_transform(pca_x.reshape(-1,1));
-############################################################# GOT HERE
-colourmap_z = cm.terrain(pca_z);
+tsneValues = scaler.fit_transform(tsneValues.reshape(-1,1));
+# assign colours using colour map here
+tsne_colourmap = cm.terrain(tsneValues);
 
 for j in range(verts.shape[0]):
     for rgb in range(3):
-        colours_x[j,rgb] = colourmap_x[j,0,rgb];
-
-# Do the file writing here
+        tsne_colours[j,rgb] = tsne_colourmap[j,0,rgb];
+#------------------------------------------------------------------------------
+######################## Perform VRML file write here #########################
 # --> Firstly the x component
-wrlFileX = open('C:\MPhys\\Visualisation\\stomachPCA_x_LR.wrl','w');
-wrlFileX.write('#VRML V2.0 utf8\nWorldInfo {title "stomach-PCA-VRML-x_component"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
+wrlFile = open('C:\MPhys\\Visualisation\\stomachTSNE.wrl','w');
+wrlFile.write('#VRML V2.0 utf8\nWorldInfo {title "stomachTSNE"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
     for j in range(verts.shape[1]):
-        wrlFileX.write(str("{:.6f}".format(verts[i][j])) + "  ");
-    wrlFileX.write("\n");              
+        wrlFile.write(str("{:.6f}".format(verts[i][j])) + "  ");
+    wrlFile.write("\n");              
 
-wrlFileX.write("]}\n	color Color {\n	color[\n");
+wrlFile.write("]}\n	color Color {\n	color[\n");
            
-for i in range(colours_x.shape[0]):
-    for j in range(colours_x.shape[1]):
-        wrlFileX.write(str("{:.6f}".format(colours_x[i][j])) + "  ");
-    wrlFileX.write("\n");
+for i in range(tsne_colours.shape[0]):
+    for j in range(tsne_colours.shape[1]):
+        wrlFile.write(str("{:.6f}".format(tsne_colours[i][j])) + "  ");
+    wrlFile.write("\n");
     
-wrlFileX.write("]\n	}\n	colorPerVertex TRUE	\n	coordIndex [\n");
+wrlFile.write("]\n	}\n	colorPerVertex TRUE	\n	coordIndex [\n");
     
 for i in range(faces.shape[0]):
     for j in range(3):
-        wrlFileX.write(str(int(faces[i][j])) + "  ");
-    wrlFileX.write(str(int(-1))+ "\n");              
+        wrlFile.write(str(int(faces[i][j])) + "  ");
+    wrlFile.write(str(int(-1))+ "\n");              
 
-wrlFileX.write("	]\n	}\n}");
-wrlFileX.close();
-
-# --> now y
-wrlFileY = open('C:\MPhys\\Visualisation\\stomachPCA_y_AP.wrl','w');
-wrlFileY.write('#VRML V2.0 utf8\nWorldInfo {title "stomach-PCA-VRML-x_component"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
-
-for i in range(verts.shape[0]):
-    for j in range(verts.shape[1]):
-        wrlFileY.write(str("{:.6f}".format(verts[i][j])) + "  ");
-    wrlFileY.write("\n");              
-
-wrlFileY.write("]}\n	color Color {\n	color[\n");
-           
-for i in range(colours_y.shape[0]):
-    for j in range(colours_y.shape[1]):
-        wrlFileY.write(str("{:.6f}".format(colours_y[i][j])) + "  ");
-    wrlFileY.write("\n");
-    
-wrlFileY.write("]\n	}\n	colorPerVertex TRUE	\n	coordIndex [\n");
-    
-for i in range(faces.shape[0]):
-    for j in range(3):
-        wrlFileY.write(str(int(faces[i][j])) + "  ");
-    wrlFileY.write(str(int(-1))+ "\n");              
-
-wrlFileY.write("	]\n	}\n}");
-wrlFileY.close();
-
-# --> now z
-wrlFileZ = open('C:\MPhys\\Visualisation\\stomachPCA_z_CC.wrl','w');
-wrlFileZ.write('#VRML V2.0 utf8\nWorldInfo {title "stomach-PCA-VRML-x_component"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
-
-for i in range(verts.shape[0]):
-    for j in range(verts.shape[1]):
-        wrlFileZ.write(str("{:.6f}".format(verts[i][j])) + "  ");
-    wrlFileZ.write("\n");              
-
-wrlFileZ.write("]}\n	color Color {\n	color[\n");
-           
-for i in range(colours_z.shape[0]):
-    for j in range(colours_z.shape[1]):
-        wrlFileZ.write(str("{:.6f}".format(colours_z[i][j])) + "  ");
-    wrlFileZ.write("\n");
-    
-wrlFileZ.write("]\n	}\n	colorPerVertex TRUE	\n	coordIndex [\n");
-    
-for i in range(faces.shape[0]):
-    for j in range(3):
-        wrlFileZ.write(str(int(faces[i][j])) + "  ");
-    wrlFileZ.write(str(int(-1))+ "\n");              
-
-wrlFileZ.write("	]\n	}\n}");
-wrlFileZ.close();
-
+wrlFile.write("	]\n	}\n}");
+wrlFile.close();
 
 print("Program completed in: " + str(np.round(time.time()-tStart)) + " seconds")
 

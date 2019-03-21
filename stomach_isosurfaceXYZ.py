@@ -87,9 +87,12 @@ for i in range(verts.shape[0]):
     pca_z[i] = pca_result_cube[verts_round[i,0],verts_round[i,1],verts_round[i,2],0,2];
 
 scaler = MinMaxScaler();
-pca_x = scaler.fit_transform(pca_x.reshape(-1,1));
-pca_y = scaler.fit_transform(pca_y.reshape(-1,1));
-pca_z = scaler.fit_transform(pca_z.reshape(-1,1));
+
+scaler.fit(np.append(np.append(pca_x.reshape(-1,1),pca_y.reshape(-1,1)),pca_z.reshape(-1,1)).reshape(-1,1))
+
+pca_x = scaler.transform(pca_x.reshape(-1,1));
+pca_y = scaler.transform(pca_y.reshape(-1,1));
+pca_z = scaler.transform(pca_z.reshape(-1,1));
 
 colourmap_x = cm.YlOrRd(pca_x);
 colourmap_y = cm.YlOrRd(pca_y);

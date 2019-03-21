@@ -18,7 +18,7 @@ from MulticoreTSNE import MulticoreTSNE as multiTSNE
 
 #from mpl_toolkits.mplot3d import Axes3D
 
-toggle = True; ### Toggle to pre-load the tsne data cube if already filled
+toggle = False; ### Toggle to pre-load the tsne data cube if already filled
 
 def cart3sph(x,y,z):
     hxy = np.hypot(x, y)
@@ -93,9 +93,8 @@ print("Filled huge matrix in: " + str(np.round(time.time()-tMatFill)) + " second
 
 # perform voxel-by-voxel t-SNE analysis
 tTSNE = time.time()
-tsneResult = multiTSNE(n_components=2, n_iter=1000, learning_rate=200, n_jobs = 2).fit_transform(dataMatrix);
+tsneResult = multiTSNE(n_components=2, n_iter=1000, learning_rate=200).fit_transform(dataMatrix);
 print("t-SNE completed in:" + str(np.round(time.time()-tTSNE)) + " seconds")
-np.save('C:\MPhys\\Data\\TSNE results\\panc01_StomachCrop_TSNEresult.npy', tsneResult)
 
 plt.figure()
 plt.scatter(tsneResult[:,0],tsneResult[:,1],marker='.',s=0.25)
@@ -112,6 +111,8 @@ for a in range(data1.shape[0]):
         for c in range(data1.shape[2]):
             tsne_result_cube[a][b][c] = tsneResult[voxelNum];
             voxelNum += 1;
+
+np.save('C:\MPhys\\Data\\TSNE results\\Stomach04TSNEresultcube.npy', tsne_result_cube);
 
 ###############################################################################
 # Read in the delineation nifti files using nibabel

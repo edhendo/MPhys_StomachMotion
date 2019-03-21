@@ -18,7 +18,7 @@ from MulticoreTSNE import MulticoreTSNE as multiTSNE
 
 #from mpl_toolkits.mplot3d import Axes3D
 
-toggle = True; ### Toggle to pre-load the tsne data cube if already filled
+toggle = False; ### Toggle to pre-load the tsne data cube if already filled
 
 def cart3sph(x,y,z):
     hxy = np.hypot(x, y)
@@ -41,8 +41,10 @@ maxExhale = 9
 #------------------------------------------------------------------------------
 # First extract all required warp vectors from the respective nifti images
 counter = 0
+
 for i in range(1,11):
     locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\niftyregPanc01StomachCrop\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
+    #locals()["img"+str(i)] = nib.load('D:\data\\Pancreas\\MPhys\\Nifti_Images\\Stomach\\Stomach04\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
     locals()['hdr'+str(i)] = locals()['img'+str(i)].header
     locals()['data'+str(i)] = locals()['img'+str(i)].get_fdata()
     counter = counter + 1
@@ -54,8 +56,9 @@ for i in range(1,11):
 tMatFill = time.time()
 if (toggle):
     dataMatrix = np.load('C:\MPhys\\Data\\TSNE results\\panc01_StomachCrop_TSNEdataCube.npy');
+    #dataMatrix = np.load('D:\data\\Pancreas\\MPhys\\TSNE results\\Stomach04.npy');
 else:
-    dataMatrix = np.zeros((data1.shape[0]*data1.shape[1]*data1.shape[2],9*10))
+    dataMatrix = np.zeros((data1.shape[0]*data1.shape[1]*data1.shape[2],3*10))
     m = 0
     xIndex = 0
     yIndex = 0
@@ -70,34 +73,34 @@ else:
                     for j in range(3):
                         dataMatrix[m][eleIndex] = locals()['data'+str(DVFnum)][x][y][z][0][j]
                         eleIndex += 1
-                    dataMatrix[m][eleIndex] = az
-                    eleIndex += 1
-                    dataMatrix[m][eleIndex] = el
-                    eleIndex += 1
-                    dataMatrix[m][eleIndex] = r
-                    eleIndex += 1
-                    dataMatrix[m][eleIndex] = x    # also give it the original voxel poisitions?!
-                    eleIndex += 1
-                    dataMatrix[m][eleIndex] = y
-                    eleIndex += 1
-                    dataMatrix[m][eleIndex] = z
-                    eleIndex += 1
+                    #dataMatrix[m][eleIndex] = az
+                    #eleIndex += 1
+                    #dataMatrix[m][eleIndex] = el
+                    #eleIndex += 1
+                    #dataMatrix[m][eleIndex] = r
+                    #eleIndex += 1
+                    #dataMatrix[m][eleIndex] = x    # also give it the original voxel poisitions?!
+                    #eleIndex += 1
+                    #dataMatrix[m][eleIndex] = y
+                    #eleIndex += 1
+                    #dataMatrix[m][eleIndex] = z
+                    #eleIndex += 1
                 m = m + 1
     np.save('C:\MPhys\\Data\\TSNE results\\panc01_StomachCrop_TSNEdataCube.npy', dataMatrix)
+    #np.save('D:\data\\Pancreas\\MPhys\\TSNE results\\Stomach04.npy', dataMatrix);
     
 print("Filled huge matrix in: " + str(np.round(time.time()-tMatFill)) + " seconds")
 
 # perform voxel-by-voxel t-SNE analysis
 tTSNE = time.time()
-tsneResult = multiTSNE(n_components=2, n_iter=1500, learning_rate=175).fit_transform(dataMatrix);
+tsneResult = multiTSNE(n_components=2, n_iter=1000, learning_rate=200).fit_transform(dataMatrix);
 print("t-SNE completed in:" + str(np.round(time.time()-tTSNE)) + " seconds")
-np.save('C:\MPhys\\Data\\TSNE results\\panc01_StomachCrop_TSNEresult.npy', tsneResult)
-'''
+
 plt.figure()
 plt.scatter(tsneResult[:,0],tsneResult[:,1],marker='.',s=0.25)
 plt.xlabel("t-SNE Component 1", fontsize = "20")
 plt.ylabel("t-SNE Component 2", fontsize = "20")
-'''
+
 ###############################################################################
 # --> Now reassemble the data cube to align with the stomach model
 voxelNum = 0
@@ -108,6 +111,8 @@ for a in range(data1.shape[0]):
         for c in range(data1.shape[2]):
             tsne_result_cube[a][b][c] = tsneResult[voxelNum];
             voxelNum += 1;
+
+np.save('C:\MPhys\\Data\\TSNE results\\Stomach04TSNEresultcube.npy', tsne_result_cube);
 
 ###############################################################################
 # Read in the delineation nifti files using nibabel
@@ -176,8 +181,9 @@ for j in range(verts.shape[0]):
         tsne_colours[j,rgb] = tsne_colourmap[j,0,rgb];
 #------------------------------------------------------------------------------
 ######################## Perform VRML file write here #########################
-# --> Firstly the x component
+
 wrlFile = open('C:\MPhys\\Visualisation\\stomachTSNE.wrl','w');
+#wrlFile = open('D:\data\\Pancreas\\MPhys\\TSNE results\\stomachTSNE.wrl','w');
 wrlFile.write('#VRML V2.0 utf8\nWorldInfo {title "stomachTSNE"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):

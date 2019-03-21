@@ -135,6 +135,7 @@ plt.grid(True)
 <<<<<<< HEAD
 #plt.savefig('C:\MPhys\\Python_Images\\niftyregPanc01StomachCrop\\PCvariance.png')
 plt.savefig('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA Graphs and Images\\Panc01_Variance.png')plt.savefig('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA Graphs and Images\\Panc01_Variance.png')
+plt.savefig('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA Graphs and Images\\Panc01_Variance.png')
 =======
 plt.savefig('C:\MPhys\\Python_Images\\Stomach04\\PCvariance.png')
 #plt.savefig('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA Graphs and Images\\Panc01_Variance.png')

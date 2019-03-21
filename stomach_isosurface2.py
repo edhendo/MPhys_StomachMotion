@@ -44,9 +44,10 @@ stom = np.array(stomachData);
 
 # Use marching cubes to obtain the surface mesh of the stomach/stomach PRV delineations
 # input 3d volume - masking data form WM
-verts, faces, normals, values = measure.marching_cubes_lewiner(stom, 50)
+verts, faces, normals, values = measure.marching_cubes_lewiner(stom, 0.5) #note to self:check masking boudaries in lua code 
 
 #------------------ save vertex and face coordinates into txt files --------------------------------------------------------------
+<<<<<<< HEAD
 #np.savetxt('C:\MPhys\\Data\\Intra Patient\\Pancreas\\3D Vis\\stomachVerts01.txt',verts, fmt = '%0.6f')
 #np.savetxt('C:\MPhys\\Visualisation\\stomachVerts01.txt',verts, fmt = '%0.6f');
 
@@ -71,9 +72,6 @@ mesh.set_edgecolor('k')
 ax.add_collection3d(mesh)
 
 #set axis labels
-ax.set_xlabel("x-axis: L-R?")
-ax.set_ylabel("y-axis: A-P?")
-ax.set_zlabel("z-axis: C-C?")
 
 #plot axis limits based on mesh dimensions
 ax.set_xlim(verts[:,0].min() - 2, verts[:,0].max() + 2)
@@ -109,7 +107,6 @@ if toggle:
 scaler = MinMaxScaler();
 coloursMag = scaler.fit_transform(coloursMag.reshape(-1,1));
 
-colourmap = cm.bwr(coloursMag);
 
 for x in range(verts.shape[0]):
     for l in range(3):
@@ -125,6 +122,7 @@ for x in range(verts.shape[0]):
 ## --> T-SNE similarly
 
 # Do the file writing here
+<<<<<<< HEAD
 '''
 wrlFile = open('C:\MPhys\\Visualisation\\stomachPCA_mag.wrl','w');
 wrlFile.write('#VRML V2.0 utf8\nWorldInfo {title "stomach-PCA-VRML"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  

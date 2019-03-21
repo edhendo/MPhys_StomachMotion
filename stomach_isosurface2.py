@@ -21,15 +21,15 @@ def magnitude(x,y,z):
 tStart = time.time();
 np.set_printoptions(precision=4, suppress=True);
 #pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAcube.npy');
-pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaStomach02.npy')
+pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaPanc01_NR.npy')
 #mag_pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Panc01StomachCropMagnitudePCAcube.npy');
-mag_pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaMagStomach02.npy');
+mag_pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaMagPanc01_NR.npy');
 
 toggle = True; # set to True for using pca on magnitudes rather than magnitude of pca comps
 
 # Read in the delineation nifti files using nibabel
 #stomach = nib.load('C:\MPhys\\stomach.nii');
-stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Stomach02\\stomachMask.nii')
+stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Panc01_NR\\stomach.nii')
 stomachHdr = stomach.header;
 stomachData = stomach.get_fdata();
 '''
@@ -44,7 +44,7 @@ stom = np.array(stomachData);
 
 # Use marching cubes to obtain the surface mesh of the stomach/stomach PRV delineations
 # input 3d volume - masking data form WM
-verts, faces, normals, values = measure.marching_cubes_lewiner(stom, 0.5) #note to self:check masking boudaries in lua code 
+verts, faces, normals, values = measure.marching_cubes_lewiner(stom, 50) #note to self:check masking boudaries in lua code 
 
 #------------------ save vertex and face coordinates into txt files --------------------------------------------------------------
 # create new array for faces - needs to have 4 components (-1 as fourth)
@@ -104,7 +104,7 @@ if toggle:
 scaler = MinMaxScaler();
 coloursMag = scaler.fit_transform(coloursMag.reshape(-1,1));
 
-colourmap = cm.terrain(coloursMag);
+colourmap = cm.rainbow(coloursMag);
 
 for x in range(verts.shape[0]):
     for l in range(3):

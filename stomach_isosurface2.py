@@ -20,16 +20,36 @@ def magnitude(x,y,z):
 
 tStart = time.time();
 np.set_printoptions(precision=4, suppress=True);
+<<<<<<< HEAD
+pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAcube.npy');
+#pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaPanc01_NR.npy')
+mag_pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Panc01StomachCropMagnitudePCAcube.npy');
+#mag_pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaMagPanc01_NR.npy');
+=======
 #pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAcube.npy');
 pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaPanc01_NR.npy')
 #mag_pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Panc01StomachCropMagnitudePCAcube.npy');
+<<<<<<< HEAD
 mag_pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaMagPanc01_NR.npy');
+=======
+mag_pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaMagStomach02.npy');
+>>>>>>> 093bf2b35f2f6bf35ec9a1653ad9a26dd323346f
+>>>>>>> f6be48addf01f0acf68f8b0b2b325eca426cca99
 
 toggle = True; # set to True for using pca on magnitudes rather than magnitude of pca comps
 
 # Read in the delineation nifti files using nibabel
+<<<<<<< HEAD
+stomach = nib.load('C:\MPhys\\stomach.nii');
+#stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Panc01_NR\\stomach.nii')
+=======
 #stomach = nib.load('C:\MPhys\\stomach.nii');
+<<<<<<< HEAD
 stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Panc01_NR\\stomach.nii')
+=======
+stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Stomach02\\stomachMask.nii')
+>>>>>>> 093bf2b35f2f6bf35ec9a1653ad9a26dd323346f
+>>>>>>> f6be48addf01f0acf68f8b0b2b325eca426cca99
 stomachHdr = stomach.header;
 stomachData = stomach.get_fdata();
 '''
@@ -47,6 +67,12 @@ stom = np.array(stomachData);
 verts, faces, normals, values = measure.marching_cubes_lewiner(stom, 50) #note to self:check masking boudaries in lua code 
 
 #------------------ save vertex and face coordinates into txt files --------------------------------------------------------------
+<<<<<<< HEAD
+#np.savetxt('C:\MPhys\\Data\\Intra Patient\\Pancreas\\3D Vis\\stomachVerts01.txt',verts, fmt = '%0.6f')
+#np.savetxt('C:\MPhys\\Visualisation\\stomachVerts01.txt',verts, fmt = '%0.6f');
+
+=======
+>>>>>>> 093bf2b35f2f6bf35ec9a1653ad9a26dd323346f
 # create new array for faces - needs to have 4 components (-1 as fourth)
 facesnew = np.ndarray(shape = (faces.shape[0],4))
 for i in range(faces.shape[0]):
@@ -54,6 +80,11 @@ for i in range(faces.shape[0]):
         facesnew[i][j] = int(faces[i][j])
     facesnew[i][3] = int(-1)
     
+<<<<<<< HEAD
+#np.savetxt('C:\MPhys\\Data\\Intra Patient\\Pancreas\\3D Vis\\stomachFaces01.txt',facesnew.astype(int), fmt = '%0.0f')
+#np.savetxt('C:\MPhys\\Visualisation\\stomachFaces01.txt',facesnew.astype(int), fmt = '%0.0f')
+=======
+>>>>>>> 093bf2b35f2f6bf35ec9a1653ad9a26dd323346f
 #--------------------------------------------------------------------------------------------------------------------------------
 
 # Display resulting triangular mesh
@@ -110,13 +141,26 @@ for x in range(verts.shape[0]):
     for l in range(3):
         colours[x,l] = colourmap[x,0,l];
                                         
+<<<<<<< HEAD
+#write into a text file
+#np.savetxt('C:\MPhys\\Data\\Intra Patient\\Pancreas\\3D Vis\\stomachColours01.txt', colours, fmt = '%0.6f')
+#np.savetxt('C:\MPhys\\Visualisation\\stomachColours01.txt', colours, fmt = '%0.6f')
+
+
+=======
+>>>>>>> 093bf2b35f2f6bf35ec9a1653ad9a26dd323346f
 ## --> have one vis method showing the magnitude of each point with a single color map
 ## --> then separate x,y,z components
 ## --> T-SNE similarly
 
 # Do the file writing here
+<<<<<<< HEAD
+'''
+wrlFile = open('C:\MPhys\\Visualisation\\stomachPCA_mag.wrl','w');
+=======
 wrlFile = open('C:\MPhys\\Data\\Intra Patient\\Stomach\\3D Vis\\pcaMagPanc01.wrl','w');
 #wrlFile = open('C:\MPhys\\Visualisation\\stomachPCA_mag.wrl','w');
+>>>>>>> 093bf2b35f2f6bf35ec9a1653ad9a26dd323346f
 wrlFile.write('#VRML V2.0 utf8\nWorldInfo {title "stomach-PCA-VRML"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
@@ -142,3 +186,4 @@ wrlFile.write("	]\n	}\n}");
 wrlFile.close();
 
 print("Program completed in: " + str(np.round(time.time()-tStart)) + " seconds")
+'''

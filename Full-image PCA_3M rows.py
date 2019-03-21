@@ -123,7 +123,6 @@ np.save('C:\MPhys\\Data\\PCA results\\Stomach04PCAcube.npy', pca_result_cube)
 #produce graph of variance ratios
 pcomponents = np.linspace(1,9,9)
 plt.plot(pcomponents, pca.explained_variance_ratio_,'o-', markersize = 5, clip_on = False)
-plt.title('Percentage Variance - Stomach02',fontsize = 16)
 plt.title('Percentage Variance - Panc01 Stomach Crop',fontsize = 16)
 plt.xlabel('Principal Component', fontsize = 16)
 plt.ylabel('Percentage of total variance', fontsize = 16)
@@ -134,7 +133,6 @@ plt.yticks(fontsize = 14)
 plt.grid(True)
 <<<<<<< HEAD
 #plt.savefig('C:\MPhys\\Python_Images\\niftyregPanc01StomachCrop\\PCvariance.png')
-plt.savefig('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA Graphs and Images\\Panc01_Variance.png')plt.savefig('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA Graphs and Images\\Panc01_Variance.png')
 plt.savefig('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA Graphs and Images\\Panc01_Variance.png')
 =======
 plt.savefig('C:\MPhys\\Python_Images\\Stomach04\\PCvariance.png')

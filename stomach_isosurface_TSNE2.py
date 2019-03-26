@@ -13,12 +13,15 @@ import time
 import numpy as np
 import nibabel as nib
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from skimage import measure
 import math
 from sklearn.preprocessing import MinMaxScaler
 from matplotlib import cm
 from MulticoreTSNE import MulticoreTSNE as multiTSNE
+from sklearn.manifold import TSNE
+from sklearn.cluster import KMeans
+from mpl_toolkits.mplot3d import Axes3D
+from sklearn.metrics import silhouette_samples, silhouette_score
 
 def cart3sph(x,y,z):
     hxy = np.hypot(x, y)
@@ -33,10 +36,9 @@ np.set_printoptions(precision=4, suppress=True)
 #------------------------------------------------------------------------------
 # First extract all required warp vectors from the respective nifti images
 counter = 0
-
 for i in range(1,11):
-    locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\Stomach04\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
-    #locals()["img"+str(i)] = nib.load('D:\data\\Pancreas\\MPhys\\Nifti_Images\\Stomach\\Stomach04\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
+    locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\Stomach06\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
+    #locals()["img"+str(i)] = nib.load('D:\data\\Pancreas\\MPhys\\Nifti_Images\\Stomach\\Stomach02\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
     locals()['hdr'+str(i)] = locals()['img'+str(i)].header
     locals()['data'+str(i)] = locals()['img'+str(i)].get_fdata()
     counter = counter + 1
@@ -46,7 +48,7 @@ for i in range(1,11):
 
 #------------------------------------------------------------------------------     
 # Read in the delineation nifti files using nibabel
-stomach = nib.load('C:\MPhys\\Nifti_Images\\Stomach04\\stomachMask.nii');
+stomach = nib.load('C:\MPhys\\Nifti_Images\\Stomach06\\stomachMask.nii');
 # stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Pancreas\\niftyregPanc01StomachCrop\\stomach.nii')
 stomachHdr = stomach.header;
 stomachData = stomach.get_fdata();
@@ -71,20 +73,219 @@ for i in range(faces.shape[0]):
 verts_round = (np.around(verts)).astype(int)
 
 #------------------------------------------------------------------------------           
-# Now strip out the stoamch data alone
+# Now strip out the stoamch data alone and arrange data for pca here
+extracted_DVF_Data = np.zeros((verts.shape[0],6*10))    
+   
+for a in range(verts.shape[0]):
+    eleIndex = 0;
+    for DVFnum in range(1,11):
+        # run over all DVFs
+        az, el, r = cart3sph(locals()['data'+str(DVFnum)][verts_round[a,0],verts_round[a,1],verts_round[a,2],0,0],locals()['data'+str(DVFnum)][verts_round[a,0],verts_round[a,1],verts_round[a,2],0,1],locals()['data'+str(DVFnum)][verts_round[a,0],verts_round[a,1],verts_round[a,2],0,2]);               
+        for ijk in range(3):
+            extracted_DVF_Data[a,eleIndex] = locals()['data'+str(DVFnum)][verts_round[a,0],verts_round[a,1],verts_round[a,2],0,ijk]
+            eleIndex += 1;
+        extracted_DVF_Data[a,eleIndex] = r;                     # Magnitude
+        eleIndex += 1;
+        extracted_DVF_Data[a,eleIndex] = az;                    # Azimuthal
+        eleIndex += 1;
+        extracted_DVF_Data[a,eleIndex] = el;                    # Elevation
+        eleIndex += 1;
+        #extracted_DVF_Data[a,eleIndex] = verts_round[a,0];      # X position
+        #eleIndex += 1;
+        #extracted_DVF_Data[a,eleIndex] = verts_round[a,1];      # Y position
+        #eleIndex += 1;
+        #extracted_DVF_Data[a,eleIndex] = verts_round[a,2];      # Z position
+        #eleIndex += 1;
+        
+#------------------------------------------------------------------------------
+# Now perform t-SNE analysis
+
+tTSNE = time.time()
+tsneResult = TSNE(n_components=2, n_iter=1000, learning_rate=200).fit_transform(extracted_DVF_Data);
+print("t-SNE completed in:" + str(np.round(time.time()-tTSNE)) + " seconds")   
+plt.figure()
+plt.scatter(tsneResult[:,0],tsneResult[:,1],marker='o',s=10)
+plt.xlabel("t-SNE Component 1", fontsize = "18")
+plt.ylabel("t-SNE Component 2", fontsize = "18")       
+plt.show();
+#------------------------------------------------------------------------------
+# Now perform k-means clustering
+clusters = 2
+kmeans = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
+
+# The silhouette_score gives the average value for all the samples.
+# This gives a perspective into the density and separation of the formed clusters
+silhouette_avg = silhouette_score(tsneResult, kmeans.labels_)
+print("For n_clusters =", clusters,
+      "The average silhouette_score is :", silhouette_avg)
+
+for i in range(clusters):
+    locals()['cluster'+str(i)] = [];
     
-for a in range(1,11):
-    locals()['data'+str(i)]    
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+for j in range(tsneResult.shape[0]):
+    for k in range(clusters):
+        if kmeans.labels_[j] == k:
+            locals()['cluster'+str(k)].append(tsneResult[j]);
+
+for l in range(clusters):
+    locals()['cluster'+str(l)] = np.array(locals()['cluster'+str(l)]);
+
+plt.figure()
+plt.scatter(cluster0[:,0],cluster0[:,1],marker='o',s=10,color='r')
+plt.scatter(cluster1[:,0],cluster1[:,1],marker='o',s=10,color='k')
+plt.xlabel("t-SNE Component 1", fontsize = "18")
+plt.ylabel("t-SNE Component 2", fontsize = "18")       
+plt.show();
+
+clusters = 3
+kmeans = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
+
+# The silhouette_score gives the average value for all the samples.
+# This gives a perspective into the density and separation of the formed clusters
+silhouette_avg = silhouette_score(tsneResult, kmeans.labels_)
+print("For n_clusters =", clusters,
+      "The average silhouette_score is :", silhouette_avg)
+
+for i in range(clusters):
+    locals()['cluster'+str(i)] = [];
+    
+for j in range(tsneResult.shape[0]):
+    for k in range(clusters):
+        if kmeans.labels_[j] == k:
+            locals()['cluster'+str(k)].append(tsneResult[j]);
+
+for l in range(clusters):
+    locals()['cluster'+str(l)] = np.array(locals()['cluster'+str(l)]);
+
+plt.figure()
+plt.scatter(cluster0[:,0],cluster0[:,1],marker='o',s=10,color='r')
+plt.scatter(cluster1[:,0],cluster1[:,1],marker='o',s=10,color='k')
+plt.scatter(cluster2[:,0],cluster2[:,1],marker='o',s=10,color='b')
+plt.xlabel("t-SNE Component 1", fontsize = "18")
+plt.ylabel("t-SNE Component 2", fontsize = "18")       
+plt.show();
+
+clusters = 4
+kmeans = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
+
+# The silhouette_score gives the average value for all the samples.
+# This gives a perspective into the density and separation of the formed clusters
+silhouette_avg = silhouette_score(tsneResult, kmeans.labels_)
+print("For n_clusters =", clusters,
+      "The average silhouette_score is :", silhouette_avg)
+
+for i in range(clusters):
+    locals()['cluster'+str(i)] = [];
+    
+for j in range(tsneResult.shape[0]):
+    for k in range(clusters):
+        if kmeans.labels_[j] == k:
+            locals()['cluster'+str(k)].append(tsneResult[j]);
+
+for l in range(clusters):
+    locals()['cluster'+str(l)] = np.array(locals()['cluster'+str(l)]);
+
+plt.figure()
+plt.scatter(cluster0[:,0],cluster0[:,1],marker='o',s=10,color='r')
+plt.scatter(cluster1[:,0],cluster1[:,1],marker='o',s=10,color='k')
+plt.scatter(cluster2[:,0],cluster2[:,1],marker='o',s=10,color='b')
+plt.scatter(cluster3[:,0],cluster3[:,1],marker='o',s=10,color='y')
+plt.xlabel("t-SNE Component 1", fontsize = "18")
+plt.ylabel("t-SNE Component 2", fontsize = "18")       
+plt.show();
+
+clusters = 5
+kmeans = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
+
+# The silhouette_score gives the average value for all the samples.
+# This gives a perspective into the density and separation of the formed clusters
+silhouette_avg = silhouette_score(tsneResult, kmeans.labels_)
+print("For n_clusters =", clusters,
+      "The average silhouette_score is :", silhouette_avg)
+
+for i in range(clusters):
+    locals()['cluster'+str(i)] = [];
+    
+for j in range(tsneResult.shape[0]):
+    for k in range(clusters):
+        if kmeans.labels_[j] == k:
+            locals()['cluster'+str(k)].append(tsneResult[j]);
+
+for l in range(clusters):
+    locals()['cluster'+str(l)] = np.array(locals()['cluster'+str(l)]);
+
+plt.figure()
+plt.scatter(cluster0[:,0],cluster0[:,1],marker='o',s=10,color='r')
+plt.scatter(cluster1[:,0],cluster1[:,1],marker='o',s=10,color='k')
+plt.scatter(cluster2[:,0],cluster2[:,1],marker='o',s=10,color='b')
+plt.scatter(cluster3[:,0],cluster3[:,1],marker='o',s=10,color='y')
+plt.scatter(cluster4[:,0],cluster4[:,1],marker='o',s=10,color='g')
+plt.xlabel("t-SNE Component 1", fontsize = "18")
+plt.ylabel("t-SNE Component 2", fontsize = "18")       
+plt.show();
+
+clusters = 6
+kmeans = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
+
+# The silhouette_score gives the average value for all the samples.
+# This gives a perspective into the density and separation of the formed clusters
+silhouette_avg = silhouette_score(tsneResult, kmeans.labels_)
+print("For n_clusters =", clusters,
+      "The average silhouette_score is :", silhouette_avg)
+
+for i in range(clusters):
+    locals()['cluster'+str(i)] = [];
+    
+for j in range(tsneResult.shape[0]):
+    for k in range(clusters):
+        if kmeans.labels_[j] == k:
+            locals()['cluster'+str(k)].append(tsneResult[j]);
+
+for l in range(clusters):
+    locals()['cluster'+str(l)] = np.array(locals()['cluster'+str(l)]);
+
+plt.figure()
+plt.scatter(cluster0[:,0],cluster0[:,1],marker='o',s=10,color='r')
+plt.scatter(cluster1[:,0],cluster1[:,1],marker='o',s=10,color='k')
+plt.scatter(cluster2[:,0],cluster2[:,1],marker='o',s=10,color='b')
+plt.scatter(cluster3[:,0],cluster3[:,1],marker='o',s=10,color='y')
+plt.scatter(cluster4[:,0],cluster4[:,1],marker='o',s=10,color='g')
+plt.scatter(cluster5[:,0],cluster5[:,1],marker='o',s=10,color='c')
+plt.xlabel("t-SNE Component 1", fontsize = "18")
+plt.ylabel("t-SNE Component 2", fontsize = "18")       
+plt.show();
+
+clusters = 7
+kmeans = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
+
+# The silhouette_score gives the average value for all the samples.
+# This gives a perspective into the density and separation of the formed clusters
+silhouette_avg = silhouette_score(tsneResult, kmeans.labels_)
+print("For n_clusters =", clusters,
+      "The average silhouette_score is :", silhouette_avg)
+
+for i in range(clusters):
+    locals()['cluster'+str(i)] = [];
+    
+for j in range(tsneResult.shape[0]):
+    for k in range(clusters):
+        if kmeans.labels_[j] == k:
+            locals()['cluster'+str(k)].append(tsneResult[j]);
+
+for l in range(clusters):
+    locals()['cluster'+str(l)] = np.array(locals()['cluster'+str(l)]);
+
+plt.figure()
+plt.scatter(cluster0[:,0],cluster0[:,1],marker='o',s=10,color='r')
+plt.scatter(cluster1[:,0],cluster1[:,1],marker='o',s=10,color='k')
+plt.scatter(cluster2[:,0],cluster2[:,1],marker='o',s=10,color='b')
+plt.scatter(cluster3[:,0],cluster3[:,1],marker='o',s=10,color='y')
+plt.scatter(cluster4[:,0],cluster4[:,1],marker='o',s=10,color='g')
+plt.scatter(cluster5[:,0],cluster5[:,1],marker='o',s=10,color='c')
+plt.scatter(cluster6[:,0],cluster6[:,1],marker='o',s=10,color='m')
+plt.xlabel("t-SNE Component 1", fontsize = "18")
+plt.ylabel("t-SNE Component 2", fontsize = "18")       
+plt.show();
+#------------------------------------------------------------------------------
+
+

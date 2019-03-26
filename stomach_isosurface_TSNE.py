@@ -3,6 +3,12 @@
 Created on Thu Mar 14 17:07:37 2019
 
 @author: Edward Henderson
+
+This script is written to perform t-SNE on the whole image before extracting 
+the points on the stomach surface. Limited success in the initial runs and
+incredibly slow. stomach_isosurface_TSNE2.py performs t-SNE on the stomach
+points only.
+
 """
 import time
 import numpy as np
@@ -43,7 +49,7 @@ maxExhale = 9
 counter = 0
 
 for i in range(1,11):
-    locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\niftyregPanc01StomachCrop\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
+    locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\Stomach04\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
     #locals()["img"+str(i)] = nib.load('D:\data\\Pancreas\\MPhys\\Nifti_Images\\Stomach\\Stomach04\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
     locals()['hdr'+str(i)] = locals()['img'+str(i)].header
     locals()['data'+str(i)] = locals()['img'+str(i)].get_fdata()
@@ -55,10 +61,10 @@ for i in range(1,11):
 # fill the matrix for t-SNE analysis
 tMatFill = time.time()
 if (toggle):
-    dataMatrix = np.load('C:\MPhys\\Data\\TSNE results\\panc01_StomachCrop_TSNEdataCube.npy');
+    dataMatrix = np.load('C:\MPhys\\Data\\TSNE results\\Stomach04_TSNEdataCube.npy');
     #dataMatrix = np.load('D:\data\\Pancreas\\MPhys\\TSNE results\\Stomach04.npy');
 else:
-    dataMatrix = np.zeros((data1.shape[0]*data1.shape[1]*data1.shape[2],3*10))
+    dataMatrix = np.zeros((data1.shape[0]*data1.shape[1]*data1.shape[2],7*10))
     m = 0
     xIndex = 0
     yIndex = 0
@@ -77,16 +83,16 @@ else:
                     #eleIndex += 1
                     #dataMatrix[m][eleIndex] = el
                     #eleIndex += 1
-                    #dataMatrix[m][eleIndex] = r
-                    #eleIndex += 1
-                    #dataMatrix[m][eleIndex] = x    # also give it the original voxel poisitions?!
-                    #eleIndex += 1
-                    #dataMatrix[m][eleIndex] = y
-                    #eleIndex += 1
-                    #dataMatrix[m][eleIndex] = z
-                    #eleIndex += 1
+                    dataMatrix[m][eleIndex] = r
+                    eleIndex += 1
+                    dataMatrix[m][eleIndex] = x    # also give it the original voxel poisitions?!
+                    eleIndex += 1
+                    dataMatrix[m][eleIndex] = y
+                    eleIndex += 1
+                    dataMatrix[m][eleIndex] = z
+                    eleIndex += 1
                 m = m + 1
-    np.save('C:\MPhys\\Data\\TSNE results\\panc01_StomachCrop_TSNEdataCube.npy', dataMatrix)
+    np.save('C:\MPhys\\Data\\TSNE results\\Stomach04_TSNEdataCube.npy', dataMatrix)
     #np.save('D:\data\\Pancreas\\MPhys\\TSNE results\\Stomach04.npy', dataMatrix);
     
 print("Filled huge matrix in: " + str(np.round(time.time()-tMatFill)) + " seconds")
@@ -104,19 +110,20 @@ plt.ylabel("t-SNE Component 2", fontsize = "20")
 ###############################################################################
 # --> Now reassemble the data cube to align with the stomach model
 voxelNum = 0
-tsne_result_cube = np.zeros((data1.shape[0],data1.shape[1],data1.shape[2]));
+tsne_result_cube = np.zeros((data1.shape[0],data1.shape[1],data1.shape[2],2));
 
 for a in range(data1.shape[0]):
     for b in range(data1.shape[1]):
         for c in range(data1.shape[2]):
-            tsne_result_cube[a][b][c] = tsneResult[voxelNum];
+            tsne_result_cube[a][b][c][0] = tsneResult[voxelNum,0];
+            tsne_result_cube[a][b][c][1] = tsneResult[voxelNum,1];
             voxelNum += 1;
 
 np.save('C:\MPhys\\Data\\TSNE results\\Stomach04TSNEresultcube.npy', tsne_result_cube);
 
 ###############################################################################
 # Read in the delineation nifti files using nibabel
-stomach = nib.load('C:\MPhys\\stomach.nii');
+stomach = nib.load('C:\MPhys\\Nifti_Images\\Stomach04\\stomachMask.nii');
 # stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Pancreas\\niftyregPanc01StomachCrop\\stomach.nii')
 stomachHdr = stomach.header;
 stomachData = stomach.get_fdata();
@@ -162,14 +169,15 @@ plt.tight_layout()
 plt.show()
 
 #----------------- assign t-SNE colour values ---------------------------------
-tsneValues = np.ndarray(shape = (verts.shape[0]));
+tsneValues = np.ndarray(shape = (verts.shape[0],2));
 tsne_colours = np.ndarray(shape = (verts.shape[0],3));
 # round vertex numbers to nearest int
 verts_round = (np.around(verts)).astype(int)
 # find the t-SNE values that correspond with mesh vertices
 # then put the t-SNE values that match the rounded vertex values into an array
 for i in range(verts.shape[0]):
-    tsneValues[i] = tsne_result_cube[verts_round[i,0],verts_round[i,1],verts_round[i,2]];
+    tsneValues[i,0] = tsne_result_cube[verts_round[i,0],verts_round[i,1],verts_round[i,2],0];
+    tsneValues[i,1] = tsne_result_cube[verts_round[i,0],verts_round[i,1],verts_round[i,2],1];
 
 scaler = MinMaxScaler();
 tsneValues = scaler.fit_transform(tsneValues.reshape(-1,1));

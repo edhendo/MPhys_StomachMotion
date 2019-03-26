@@ -23,14 +23,14 @@ np.set_printoptions(precision=4, suppress=True)
 # Define which scan is the reference scan, aka the maximum exhale scan
 refScanNum = 9
 #------------------------------------------------------------------------------
-# PANC01 has maxExhale at 9 (including the first two boxes)
-# 7 for 104
+# PANC01 has maxExhale at 9 (including the first two boxes
+# Stomach02 = 10
 #------------------------------------------------------------------------------
 # First extract all required warp vectors from the respective nifti images
 counter = 0
 for i in range(1,11):
     if True: #i != refScanNum: #Not needed right now since the reference scan is set to -1*averagewarp
-        locals()["img"+str(i)] = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Panc01_NR\\warp{0}.nii'.format(i+2))
+        locals()["img"+str(i)] = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Stomach07\\warp{0}.nii'.format(i+2))
         #locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\niftyregPanc01StomachCrop\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
         locals()['hdr'+str(i)] = locals()['img'+str(i)].header
         locals()['data'+str(i)] = locals()['img'+str(i)].get_fdata()
@@ -109,13 +109,13 @@ print("Program completed in: " + str(np.round(time.time()-tStart)) + " seconds")
 # Now save the resultant PCA data as .npy arrays
 
 #np.save('C:\MPhys\\Data\\PCA results\\Panc01StomachCropMagnitudePCAcube.npy', pca_result_cube)
-np.save('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaMagPanc01.npy', pca_result_cube)
+np.save('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaMagStomach07.npy', pca_result_cube)
 # accessed through np.load(path)
 
 #produce graph of variance ratios
 pcomponents = np.linspace(1,9,9)
 plt.plot(pcomponents, pca.explained_variance_ratio_,'o-', markersize = 5, clip_on = False)
-plt.title('Percentage Variance - Stomach02 Mag',fontsize = 16)
+plt.title('Percentage Variance - Stomach07 Mag',fontsize = 16)
 plt.xlabel('Principal Component', fontsize = 16)
 plt.ylabel('Percentage of total variance', fontsize = 16)
 plt.ylim(0,1.0)
@@ -124,4 +124,4 @@ plt.xticks(fontsize = 14)
 plt.yticks(fontsize = 14)
 plt.grid(True)
 #plt.savefig('C:\MPhys\\Python_Images\\niftyregPanc01StomachCrop\\magnitudePCvariance.png')
-plt.savefig('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA Graphs and Images\\Panc01_VarianceMag.png')
+plt.savefig('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA Graphs and Images\\Stomach07_VarianceMag.png')

@@ -20,19 +20,15 @@ np.set_printoptions(precision=4, suppress=True)
 refScanNum = 9
 #------------------------------------------------------------------------------
 # PANC01 has maxExhale at 9 (including the first two boxes)
-# 7 for 104
+# All 9 except stomach02 = 10
 #------------------------------------------------------------------------------
 # First extract all required warp vectors from the respective nifti images
 counter = 0
 for i in range(1,11):
     if True: #i != refScanNum: #Not needed right now since the reference scan is set to -1*averagewarp
-<<<<<<< HEAD
-        locals()["img"+str(i)] = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Panc01_NR\\warp{0}.nii'.format(i+2))
+        locals()["img"+str(i)] = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Stomach07\\warp{0}.nii'.format(i+2))
         #locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\niftyregPanc01StomachCrop\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
-=======
-        #locals()["img"+str(i)] = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Panc01_NR\\warp{0}.nii'.format(i+2))
-        locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\Stomach04\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
->>>>>>> f6be48addf01f0acf68f8b0b2b325eca426cca99
+        #locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\Stomach04\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
         locals()['hdr'+str(i)] = locals()['img'+str(i)].header
         locals()['data'+str(i)] = locals()['img'+str(i)].get_fdata()
         counter = counter + 1
@@ -67,7 +63,7 @@ t1 = time.time()
 DVFindex = 0
 for DVFnum in range(1,11):
     n = 0
-    if True: #DVFnum != refScanNum: Again not needed right now since we want to include the refernence scan (mean centering)       
+    if True: #DVFnum != refScanNum: Again not needed right now since we want to include the reference scan (mean centering)       
         for x1 in range(data1.shape[0]):
             for y1 in range(data1.shape[1]):
                 for z1 in range(data1.shape[2]):
@@ -111,19 +107,16 @@ print("Program completed in: " + str(np.round(time.time()-tStart)) + " seconds")
 
 # Now save the resultant PCA data as .npy arrays
 
-<<<<<<< HEAD
-np.save('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaPanc01.npy', pca_result_cube)
+
+np.save('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaStomach07.npy', pca_result_cube)
 #np.save('C:\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAcube.npy', pca_result_cube)
-=======
-#np.save('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaPanc01_NR.npy', pca_result_cube)
-np.save('C:\MPhys\\Data\\PCA results\\Stomach04PCAcube.npy', pca_result_cube)
->>>>>>> f6be48addf01f0acf68f8b0b2b325eca426cca99
+#np.save('C:\MPhys\\Data\\PCA results\\Stomach04PCAcube.npy', pca_result_cube)
 # accessed through np.load(path)
 
 #produce graph of variance ratios
 pcomponents = np.linspace(1,9,9)
 plt.plot(pcomponents, pca.explained_variance_ratio_,'o-', markersize = 5, clip_on = False)
-plt.title('Percentage Variance - Panc01 Stomach Crop',fontsize = 16)
+plt.title('Percentage Variance - Stomach07 Stomach Crop',fontsize = 16)
 plt.xlabel('Principal Component', fontsize = 16)
 plt.ylabel('Percentage of total variance', fontsize = 16)
 plt.ylim(0,1.0)
@@ -131,10 +124,9 @@ plt.xlim(1,9)
 plt.xticks(fontsize = 14)
 plt.yticks(fontsize = 14)
 plt.grid(True)
-<<<<<<< HEAD
+
 #plt.savefig('C:\MPhys\\Python_Images\\niftyregPanc01StomachCrop\\PCvariance.png')
-plt.savefig('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA Graphs and Images\\Panc01_Variance.png')
-=======
-plt.savefig('C:\MPhys\\Python_Images\\Stomach04\\PCvariance.png')
-#plt.savefig('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA Graphs and Images\\Panc01_Variance.png')
->>>>>>> f6be48addf01f0acf68f8b0b2b325eca426cca99
+plt.savefig('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA Graphs and Images\\Stomach07_Variance.png')
+#plt.savefig('C:\MPhys\\Python_Images\\Stomach04\\PCvariance.png')
+
+

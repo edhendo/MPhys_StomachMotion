@@ -19,12 +19,12 @@ def magnitude(x,y,z):
 
 tStart = time.time();
 np.set_printoptions(precision=4, suppress=True);
-pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Stomach04PCAcube.npy');
-#pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaStomach02.npy')
+#pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Stomach04PCAcube.npy');
+pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaStomach07.npy')
 
 # Read in the delineation nifti files using nibabel
-stomach = nib.load('C:\MPhys\\Nifti_Images\\Stomach04\\stomachMask.nii');
-#stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Stomach02\\stomach.nii')
+#stomach = nib.load('C:\MPhys\\Nifti_Images\\Stomach04\\stomachMask.nii');
+stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Stomach07\\stomachMask.nii')
 stomachHdr = stomach.header;
 stomachData = stomach.get_fdata();
 
@@ -106,8 +106,8 @@ for j in range(verts.shape[0]):
 
 # Do the file writing here
 # --> Firstly the x component
-#wrlFileX = open('C:\MPhys\\Data\\Intra Patient\\Stomach\\3D Vis\\pcaStomach02_x.wrl','w');
-wrlFileX = open('C:\MPhys\\Visualisation\\Stomach04\\stomachPCA_x_LR.wrl','w');
+wrlFileX = open('C:\MPhys\\Data\\Intra Patient\\Stomach\\3D Vis\\pcaStomach07_x.wrl','w');
+#wrlFileX = open('C:\MPhys\\Visualisation\\Stomach04\\stomachPCA_x_LR.wrl','w');
 wrlFileX.write('#VRML V2.0 utf8\nWorldInfo {title "stomach-PCA-VRML-x_component"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
@@ -133,9 +133,9 @@ wrlFileX.write("	]\n	}\n}");
 wrlFileX.close();
 
 # --> now y
-#wrlFileY = open('C:\MPhys\\Data\\Intra Patient\\Stomach\\3D Vis\\pcaStomach02_y.wrl','w');
-wrlFileY = open('C:\MPhys\\Visualisation\\Stomach04\\stomachPCA_y_AP.wrl','w');
-wrlFileY.write('#VRML V2.0 utf8\nWorldInfo {title "stomach-PCA-VRML-x_component"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
+wrlFileY = open('C:\MPhys\\Data\\Intra Patient\\Stomach\\3D Vis\\pcaStomach07_y.wrl','w');
+#wrlFileY = open('C:\MPhys\\Visualisation\\Stomach04\\stomachPCA_y_AP.wrl','w');
+wrlFileY.write('#VRML V2.0 utf8\nWorldInfo {title "stomach-PCA-VRML-y_component"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
     for j in range(verts.shape[1]):
@@ -160,9 +160,9 @@ wrlFileY.write("	]\n	}\n}");
 wrlFileY.close();
 
 # --> now z
-#wrlFileZ = open('C:\MPhys\\Data\\Intra Patient\\Stomach\\3D Vis\\pcaStomach02_z.wrl','w');
-wrlFileZ = open('C:\MPhys\\Visualisation\\Stomach04\\stomachPCA_z_CC.wrl','w');
-wrlFileZ.write('#VRML V2.0 utf8\nWorldInfo {title "stomach-PCA-VRML-x_component"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
+wrlFileZ = open('C:\MPhys\\Data\\Intra Patient\\Stomach\\3D Vis\\pcaStomach07_z.wrl','w');
+#wrlFileZ = open('C:\MPhys\\Visualisation\\Stomach04\\stomachPCA_z_CC.wrl','w');
+wrlFileZ.write('#VRML V2.0 utf8\nWorldInfo {title "stomach-PCA-VRML-z_component"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
     for j in range(verts.shape[1]):

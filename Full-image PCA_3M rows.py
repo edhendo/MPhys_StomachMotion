@@ -26,7 +26,7 @@ refScanNum = 9
 counter = 0
 for i in range(1,11):
     if True: #i != refScanNum: #Not needed right now since the reference scan is set to -1*averagewarp
-        locals()["img"+str(i)] = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Stomach07\\warp{0}.nii'.format(i+2))
+        locals()["img"+str(i)] = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Stomach05\\warp{0}.nii'.format(i+2))
         #locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\niftyregPanc01StomachCrop\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
         #locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\Stomach04\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
         locals()['hdr'+str(i)] = locals()['img'+str(i)].header
@@ -78,8 +78,9 @@ pca = PCA(n_components=9) # set to N-1 components for correlated matrix PCA
 pca_result = pca.fit_transform(data)
 print("PCA completed in: " + str(np.round(time.time()-t2)) + " seconds")
 print("Explained variation per principal component: {}".format(pca.explained_variance_ratio_))
+np.save('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\EVR_Stomach05.npy',pca.explained_variance_ratio_)
 # sklearn PCA uses the implicit covariance (correlated) matrix PCA method outlined in Sohn 2005
-
+'''
 # Now read the principle components from the PCA back into a data cube for slice by slice visualisation
 t3 = time.time()
 min_max_scaler = MinMaxScaler()
@@ -106,17 +107,16 @@ print("Data reshaped in: " + str(np.round(time.time()-t3)) + " seconds")
 print("Program completed in: " + str(np.round(time.time()-tStart)) + " seconds")
 
 # Now save the resultant PCA data as .npy arrays
-
-
-np.save('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaStomach07.npy', pca_result_cube)
+np.save('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaPanc01.npy', pca_result_cube)
 #np.save('C:\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAcube.npy', pca_result_cube)
 #np.save('C:\MPhys\\Data\\PCA results\\Stomach04PCAcube.npy', pca_result_cube)
 # accessed through np.load(path)
-
+'''
+'''
 #produce graph of variance ratios
 pcomponents = np.linspace(1,9,9)
 plt.plot(pcomponents, pca.explained_variance_ratio_,'o-', markersize = 5, clip_on = False)
-plt.title('Percentage Variance - Stomach07 Stomach Crop',fontsize = 16)
+plt.title('Percentage Variance - Panc01 Stomach Crop',fontsize = 16)
 plt.xlabel('Principal Component', fontsize = 16)
 plt.ylabel('Percentage of total variance', fontsize = 16)
 plt.ylim(0,1.0)
@@ -126,7 +126,7 @@ plt.yticks(fontsize = 14)
 plt.grid(True)
 
 #plt.savefig('C:\MPhys\\Python_Images\\niftyregPanc01StomachCrop\\PCvariance.png')
-plt.savefig('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA Graphs and Images\\Stomach07_Variance.png')
+plt.savefig('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA Graphs and Images\\Panc01_Variance.png')
 #plt.savefig('C:\MPhys\\Python_Images\\Stomach04\\PCvariance.png')
-
+'''
 

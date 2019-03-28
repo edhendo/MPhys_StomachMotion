@@ -6,6 +6,8 @@ Created on Thu Mar 21 15:25:28 2019
 """
 import plotly
 plotly.tools.set_credentials_file(username='eleanor1357', api_key='oB200N0KGmaub83XuktV')
+plotly.tools.set_config_file(world_readable=True,
+                             sharing='public')
 import plotly.plotly as py
 import plotly.figure_factory as ff
 import plotly.graph_objs as go
@@ -60,19 +62,8 @@ X3,Y3,Z3 = zip(*verts)
 X3 = np.array(X3)
 Y3 = np.array(Y3)
 Z3 = np.array(Z3)
-i,j,k = tri_indices(faces)
 
 # find the PCA vector values that correspond with mesh vertices and put the values that match the rounded vertex values into an array
-colours = np.ndarray(shape = (verts.shape[0],3))
-coloursMag = np.ndarray(shape = (verts.shape[0]))
-#round vertex numbers to nearest int
-verts_round = (np.around(verts)).astype(int)
-
-for x2 in range(verts.shape[0]):
-    coloursMag[x2] = mag_pca_result_cube[verts_round[x2,0],verts_round[x2,1],verts_round[x2,2],0];
-
-scaler = MinMaxScaler();
-coloursMag = scaler.fit_transform(coloursMag.reshape(-1,1));
 # The program scales the values itself so all it needs is a value per vertex and a colour map to assign it too.
 def vertexColour(x,y,z):
     coloursMag = np.ndarray(shape = (verts.shape[0]))
@@ -98,4 +89,4 @@ fig3['layout'].update(dict(title= ' Stomach04 - PCA Magnitudes',
                            )
                      ))
 
-plotly.offline.plot(fig3, filename = 'Stomach04 - PCA Magnitudes.html')py.plot(fig3, filename = 'Stomach04 - PCA Magnitudes.html')
+py.plot(fig3, filename = 'Stomach04 - PCA Magnitudes.html')

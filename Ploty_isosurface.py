@@ -38,6 +38,7 @@ stomachData = stomach.get_fdata();
 # stom = np.rot90(np.rot90(np.array(stomachData),2,(0,2)),1,(1,2));
 stom = np.array(stomachData);
 
+<<<<<<< HEAD
 ##################### functions ###############################
 
 def tri_indices(faces):
@@ -45,6 +46,13 @@ def tri_indices(faces):
     #returns the lists of indices i, j, k
 
     return ([triplet[c] for triplet in faces] for c in range(3))
+=======
+# Use marching cubes to obtain the surface mesh of the stomach/stomach PRV delineations
+# input 3d volume - masking data form WM
+verts, faces, normals, values = measure.marching_cubes_lewiner(stom, 50) # note to self:check masking boudaries in lua code - CHECKED eh
+x,y,z = zip(*verts)
+#i,j,k = zip(*faces)
+>>>>>>> 0589cd3f380f6b59a837106c15e3391b5cc20311
 
 ################ create trisurf plot #########################
 

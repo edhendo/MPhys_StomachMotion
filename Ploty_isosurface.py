@@ -35,7 +35,7 @@ stom = np.array(stomachData);
 
 # Use marching cubes to obtain the surface mesh of the stomach/stomach PRV delineations
 # input 3d volume - masking data form WM
-verts, faces, normals, values = measure.marching_cubes_lewiner(stom, 50) #note to self:check masking boudaries in lua code 
+verts, faces, normals, values = measure.marching_cubes_lewiner(stom, 50) # note to self:check masking boudaries in lua code - CHECKED eh
 x,y,z = zip(*verts)
 #i,j,k = zip(*faces)
 

@@ -37,8 +37,8 @@ np.set_printoptions(precision=4, suppress=True)
 # First extract all required warp vectors from the respective nifti images
 counter = 0
 for i in range(1,11):
-    locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\Stomach06\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
-    #locals()["img"+str(i)] = nib.load('D:\data\\Pancreas\\MPhys\\Nifti_Images\\Stomach\\Stomach02\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
+    locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\Stomach07\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
+    #locals()["img"+str(i)] = nib.load('D:\data\\Pancreas\\MPhys\\Nifti_Images\\Stomach\\Stomach07\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
     locals()['hdr'+str(i)] = locals()['img'+str(i)].header
     locals()['data'+str(i)] = locals()['img'+str(i)].get_fdata()
     counter = counter + 1
@@ -48,8 +48,8 @@ for i in range(1,11):
 
 #------------------------------------------------------------------------------     
 # Read in the delineation nifti files using nibabel
-stomach = nib.load('C:\MPhys\\Nifti_Images\\Stomach06\\stomachMask.nii');
-# stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Pancreas\\niftyregPanc01StomachCrop\\stomach.nii')
+stomach = nib.load('C:\MPhys\\Nifti_Images\\Stomach07\\stomachMask.nii');
+# stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Pancreas\\niftyregStomach07StomachCrop\\stomach.nii')
 stomachHdr = stomach.header;
 stomachData = stomach.get_fdata();
 
@@ -111,11 +111,11 @@ plt.show();
 #------------------------------------------------------------------------------
 # Now perform k-means clustering
 clusters = 2
-kmeans = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
+kmeans2 = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
 
 # The silhouette_score gives the average value for all the samples.
 # This gives a perspective into the density and separation of the formed clusters
-silhouette_avg = silhouette_score(tsneResult, kmeans.labels_)
+silhouette_avg = silhouette_score(tsneResult, kmeans2.labels_)
 print("For n_clusters =", clusters,
       "The average silhouette_score is :", silhouette_avg)
 
@@ -124,7 +124,7 @@ for i in range(clusters):
     
 for j in range(tsneResult.shape[0]):
     for k in range(clusters):
-        if kmeans.labels_[j] == k:
+        if kmeans2.labels_[j] == k:
             locals()['cluster'+str(k)].append(tsneResult[j]);
 
 for l in range(clusters):
@@ -138,11 +138,11 @@ plt.ylabel("t-SNE Component 2", fontsize = "18")
 plt.show();
 
 clusters = 3
-kmeans = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
+kmeans3 = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
 
 # The silhouette_score gives the average value for all the samples.
 # This gives a perspective into the density and separation of the formed clusters
-silhouette_avg = silhouette_score(tsneResult, kmeans.labels_)
+silhouette_avg = silhouette_score(tsneResult, kmeans3.labels_)
 print("For n_clusters =", clusters,
       "The average silhouette_score is :", silhouette_avg)
 
@@ -151,7 +151,7 @@ for i in range(clusters):
     
 for j in range(tsneResult.shape[0]):
     for k in range(clusters):
-        if kmeans.labels_[j] == k:
+        if kmeans3.labels_[j] == k:
             locals()['cluster'+str(k)].append(tsneResult[j]);
 
 for l in range(clusters):
@@ -166,11 +166,11 @@ plt.ylabel("t-SNE Component 2", fontsize = "18")
 plt.show();
 
 clusters = 4
-kmeans = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
+kmeans4 = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
 
 # The silhouette_score gives the average value for all the samples.
 # This gives a perspective into the density and separation of the formed clusters
-silhouette_avg = silhouette_score(tsneResult, kmeans.labels_)
+silhouette_avg = silhouette_score(tsneResult, kmeans4.labels_)
 print("For n_clusters =", clusters,
       "The average silhouette_score is :", silhouette_avg)
 
@@ -179,7 +179,7 @@ for i in range(clusters):
     
 for j in range(tsneResult.shape[0]):
     for k in range(clusters):
-        if kmeans.labels_[j] == k:
+        if kmeans4.labels_[j] == k:
             locals()['cluster'+str(k)].append(tsneResult[j]);
 
 for l in range(clusters):
@@ -195,11 +195,11 @@ plt.ylabel("t-SNE Component 2", fontsize = "18")
 plt.show();
 
 clusters = 5
-kmeans = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
+kmeans5 = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
 
 # The silhouette_score gives the average value for all the samples.
 # This gives a perspective into the density and separation of the formed clusters
-silhouette_avg = silhouette_score(tsneResult, kmeans.labels_)
+silhouette_avg = silhouette_score(tsneResult, kmeans5.labels_)
 print("For n_clusters =", clusters,
       "The average silhouette_score is :", silhouette_avg)
 
@@ -208,7 +208,7 @@ for i in range(clusters):
     
 for j in range(tsneResult.shape[0]):
     for k in range(clusters):
-        if kmeans.labels_[j] == k:
+        if kmeans5.labels_[j] == k:
             locals()['cluster'+str(k)].append(tsneResult[j]);
 
 for l in range(clusters):
@@ -225,11 +225,11 @@ plt.ylabel("t-SNE Component 2", fontsize = "18")
 plt.show();
 
 clusters = 6
-kmeans = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
+kmeans6 = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
 
 # The silhouette_score gives the average value for all the samples.
 # This gives a perspective into the density and separation of the formed clusters
-silhouette_avg = silhouette_score(tsneResult, kmeans.labels_)
+silhouette_avg = silhouette_score(tsneResult, kmeans6.labels_)
 print("For n_clusters =", clusters,
       "The average silhouette_score is :", silhouette_avg)
 
@@ -238,7 +238,7 @@ for i in range(clusters):
     
 for j in range(tsneResult.shape[0]):
     for k in range(clusters):
-        if kmeans.labels_[j] == k:
+        if kmeans6.labels_[j] == k:
             locals()['cluster'+str(k)].append(tsneResult[j]);
 
 for l in range(clusters):
@@ -256,11 +256,11 @@ plt.ylabel("t-SNE Component 2", fontsize = "18")
 plt.show();
 
 clusters = 7
-kmeans = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
+kmeans7 = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
 
 # The silhouette_score gives the average value for all the samples.
 # This gives a perspective into the density and separation of the formed clusters
-silhouette_avg = silhouette_score(tsneResult, kmeans.labels_)
+silhouette_avg = silhouette_score(tsneResult, kmeans7.labels_)
 print("For n_clusters =", clusters,
       "The average silhouette_score is :", silhouette_avg)
 
@@ -269,7 +269,7 @@ for i in range(clusters):
     
 for j in range(tsneResult.shape[0]):
     for k in range(clusters):
-        if kmeans.labels_[j] == k:
+        if kmeans7.labels_[j] == k:
             locals()['cluster'+str(k)].append(tsneResult[j]);
 
 for l in range(clusters):
@@ -287,5 +287,117 @@ plt.xlabel("t-SNE Component 1", fontsize = "18")
 plt.ylabel("t-SNE Component 2", fontsize = "18")       
 plt.show();
 #------------------------------------------------------------------------------
+# Now assign colour values to each of the t-SNE clusters
+tsne_vertex_colours5 = np.ndarray((verts.shape[0],3));
+tsne_vertex_colours6 = np.ndarray((verts.shape[0],3));
+tsne_vertex_colours7 = np.ndarray((verts.shape[0],3));
+
+for i in range(verts.shape[0]):
+    for rgb in range(3):
+        tsne_vertex_colours5[i,rgb] = cm.Dark2(kmeans5.labels_[i])[rgb];
+        tsne_vertex_colours6[i,rgb] = cm.Dark2(kmeans6.labels_[i])[rgb];
+        tsne_vertex_colours7[i,rgb] = cm.Dark2(kmeans7.labels_[i])[rgb];
+
+#------------------------------------------------------------------------------
+######################## Perform VRML file write here #########################
+
+wrlFile5 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach07\\just_shell_clustered5.wrl','w');
+#wrlFile5 = open('D:\data\\Pancreas\\MPhys\\TSNE results\\stomachTSNE.wrl','w');
+wrlFile5.write('#VRML V2.0 utf8\nWorldInfo {title "just_shell_clustered5"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
+
+for i in range(verts.shape[0]):
+    for j in range(verts.shape[1]):
+        wrlFile5.write(str("{:.6f}".format(verts[i][j])) + "  ");
+    wrlFile5.write("\n");              
+
+wrlFile5.write("]}\n	color Color {\n	color[\n");
+           
+for i in range(tsne_vertex_colours5.shape[0]):
+    for j in range(tsne_vertex_colours5.shape[1]):
+        wrlFile5.write(str("{:.6f}".format(tsne_vertex_colours5[i][j])) + "  ");
+    wrlFile5.write("\n");
+    
+wrlFile5.write("]\n	}\n	colorPerVertex TRUE	\n	coordIndex [\n");
+    
+for i in range(faces.shape[0]):
+    for j in range(3):
+        wrlFile5.write(str(int(faces[i][j])) + "  ");
+    wrlFile5.write(str(int(-1))+ "\n");              
+
+wrlFile5.write("	]\n	}\n}");
+wrlFile5.close();
+
+wrlFile6 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach07\\just_shell_clustered6.wrl','w');
+#wrlFile6 = open('D:\data\\Pancreas\\MPhys\\TSNE results\\stomachTSNE.wrl','w');
+wrlFile6.write('#VRML V2.0 utf8\nWorldInfo {title "just_shell_clustered6"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
+
+for i in range(verts.shape[0]):
+    for j in range(verts.shape[1]):
+        wrlFile6.write(str("{:.6f}".format(verts[i][j])) + "  ");
+    wrlFile6.write("\n");              
+
+wrlFile6.write("]}\n	color Color {\n	color[\n");
+           
+for i in range(tsne_vertex_colours6.shape[0]):
+    for j in range(tsne_vertex_colours6.shape[1]):
+        wrlFile6.write(str("{:.6f}".format(tsne_vertex_colours6[i][j])) + "  ");
+    wrlFile6.write("\n");
+    
+wrlFile6.write("]\n	}\n	colorPerVertex TRUE	\n	coordIndex [\n");
+    
+for i in range(faces.shape[0]):
+    for j in range(3):
+        wrlFile6.write(str(int(faces[i][j])) + "  ");
+    wrlFile6.write(str(int(-1))+ "\n");              
+
+wrlFile6.write("	]\n	}\n}");
+wrlFile6.close();
+
+wrlFile7 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach07\\just_shell_clustered7.wrl','w');
+#wrlFile7 = open('D:\data\\Pancreas\\MPhys\\TSNE results\\stomachTSNE.wrl','w');
+wrlFile7.write('#VRML V2.0 utf8\nWorldInfo {title "just_shell_clustered7"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
+
+for i in range(verts.shape[0]):
+    for j in range(verts.shape[1]):
+        wrlFile7.write(str("{:.6f}".format(verts[i][j])) + "  ");
+    wrlFile7.write("\n");              
+
+wrlFile7.write("]}\n	color Color {\n	color[\n");
+           
+for i in range(tsne_vertex_colours7.shape[0]):
+    for j in range(tsne_vertex_colours7.shape[1]):
+        wrlFile7.write(str("{:.6f}".format(tsne_vertex_colours7[i][j])) + "  ");
+    wrlFile7.write("\n");
+    
+wrlFile7.write("]\n	}\n	colorPerVertex TRUE	\n	coordIndex [\n");
+    
+for i in range(faces.shape[0]):
+    for j in range(3):
+        wrlFile7.write(str(int(faces[i][j])) + "  ");
+    wrlFile7.write(str(int(-1))+ "\n");              
+
+wrlFile7.write("	]\n	}\n}");
+wrlFile7.close();
+
+print("Program completed in: " + str(np.round(time.time()-tStart)) + " seconds")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -64,7 +64,7 @@ if (toggle):
     dataMatrix = np.load('C:\MPhys\\Data\\TSNE results\\Stomach04_TSNEdataCube.npy');
     #dataMatrix = np.load('D:\data\\Pancreas\\MPhys\\TSNE results\\Stomach04.npy');
 else:
-    dataMatrix = np.zeros((data1.shape[0]*data1.shape[1]*data1.shape[2],7*10))
+    dataMatrix = np.zeros((data1.shape[0]*data1.shape[1]*data1.shape[2],6*10))
     m = 0
     xIndex = 0
     yIndex = 0
@@ -79,18 +79,18 @@ else:
                     for j in range(3):
                         dataMatrix[m][eleIndex] = locals()['data'+str(DVFnum)][x][y][z][0][j]
                         eleIndex += 1
-                    #dataMatrix[m][eleIndex] = az
-                    #eleIndex += 1
-                    #dataMatrix[m][eleIndex] = el
-                    #eleIndex += 1
+                    dataMatrix[m][eleIndex] = az
+                    eleIndex += 1
+                    dataMatrix[m][eleIndex] = el
+                    eleIndex += 1
                     dataMatrix[m][eleIndex] = r
                     eleIndex += 1
-                    dataMatrix[m][eleIndex] = x    # also give it the original voxel poisitions?!
-                    eleIndex += 1
-                    dataMatrix[m][eleIndex] = y
-                    eleIndex += 1
-                    dataMatrix[m][eleIndex] = z
-                    eleIndex += 1
+                    #dataMatrix[m][eleIndex] = x    # also give it the original voxel poisitions?!
+                    #eleIndex += 1
+                    #dataMatrix[m][eleIndex] = y
+                    #eleIndex += 1
+                    #dataMatrix[m][eleIndex] = z
+                    #eleIndex += 1
                 m = m + 1
     np.save('C:\MPhys\\Data\\TSNE results\\Stomach04_TSNEdataCube.npy', dataMatrix)
     #np.save('D:\data\\Pancreas\\MPhys\\TSNE results\\Stomach04.npy', dataMatrix);

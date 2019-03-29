@@ -8,7 +8,6 @@ plotly.tools.set_credentials_file(username='eleanor1357', api_key='oB200N0KGmaub
 plotly.tools.set_config_file(world_readable=True,
                              sharing='public')
 import plotly.plotly as py
-import plotly.figure_factory as ff
 import plotly.graph_objs as go
 from skimage import measure
 import numpy as np
@@ -16,20 +15,18 @@ import time
 import nibabel as nib
 from sklearn.preprocessing import MinMaxScaler
 from matplotlib import cm
- 
-
-
 
 tStart = time.time();
 np.set_printoptions(precision=4, suppress=True);
-############################## load data ########################
+#---------- load data and create mesh ----------------------------
 #mag_pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Panc01StomachCropMagnitudePCAcube.npy');
-mag_pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaMagStomach04.npy');
-
+mag_pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaMagStomach07.npy');
+#pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Stomach04PCAcube.npy');
+pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaStomach07.npy') 
 
 # Read in the delineation nifti files using nibabel
 #stomach = nib.load('C:\MPhys\\stomach.nii');
-stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Stomach04\\stomachMask.nii')
+stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Stomach07\\stomachMask.nii')
 stomachHdr = stomach.header;
 stomachData = stomach.get_fdata();
 
@@ -54,7 +51,9 @@ x,y,z = zip(*verts)
 x = np.array(x)
 y = np.array(y)
 z = np.array(z)
-i,j,k = tri_indices(faces)
+I,J,K = tri_indices(faces)
+
+#------------------------------------------------ Magnitude graph plotting ---------------------------------------------
 
 # find the PCA vector values that correspond with mesh vertices and put the values that match the rounded vertex values into an array
 colours = np.ndarray(shape = (verts.shape[0],3))
@@ -81,16 +80,16 @@ color_trace = go.Scatter(x=[0 for _ in colours],
                                 colorscale= 'YlOrRd',
                                 reversescale = True,
                                 size=1,
-                                colorbar = dict(len = 0.5),
+                                colorbar = dict(x=0.9199, y=0.5, len = 0.5),
                                 color=colours,
                                 showscale=True,
                                 )
                             )    
 
-data = [go.Mesh3d(x=x,y=y,z=z, i=i,j=j,k=k, vertexcolor = colours), color_trace]
+data = [go.Mesh3d(x=x,y=y,z=z, i=I,j=J,k=K, vertexcolor = colours), color_trace]
 
-fig3 = go.Figure(data=data)
-fig3['layout'].update(dict(title= ' Stomach04 - PCA Magnitudes',
+fig = go.Figure(data=data)
+fig['layout'].update(dict(title= 'Stomach07 - PCA Magnitudes',
                             xaxis = dict(type = 'linear', showticklabels = False, showgrid = False,
                                         zeroline = False,
                                         autorange = True),
@@ -103,8 +102,104 @@ fig3['layout'].update(dict(title= ' Stomach04 - PCA Magnitudes',
                                         yaxis = dict(type = 'linear', showticklabels = False),
                                         zaxis = dict(type = 'linear', showticklabels = False),
                                         aspectratio=dict(x=1, y=1, z=0.75),
-                                        camera=dict(eye=dict(x=1.25, y=1.25, z= 1.25)
+                                        camera=dict(up = dict(x=0,y=0,z=1), eye=dict(x=-1.51, y=1.373, z=0.248), center=dict(x=0,y=0,z=0)
                                         )
                            )
                      ))
-py.plot(fig3, filename = 'Stomach04 - PCA Magnitudes.html')
+py.plot(fig, filename = 'Stomach07 - PCA Magnitudes.html')
+
+#-------------------------------------------------- x,y,z graph plotting ------------------------------------------------------
+#find the PCA vector values that correspond with mesh vertices
+#put the PCA values that match the rounded vertex values into an array
+# separate x, y and z components here
+pca_x = np.ndarray(shape = (verts.shape[0]))
+pca_y = np.ndarray(shape = (verts.shape[0]))
+pca_z = np.ndarray(shape = (verts.shape[0]))
+colours_x = np.ndarray(shape = (verts.shape[0],3))
+colours_y = np.ndarray(shape = (verts.shape[0],3))
+colours_z = np.ndarray(shape = (verts.shape[0],3))
+#round vertex numbers to nearest int
+verts_round = (np.around(verts)).astype(int)
+
+for i in range(verts.shape[0]):
+    pca_x[i] = pca_result_cube[verts_round[i,0],verts_round[i,1],verts_round[i,2],0,0];
+    pca_y[i] = pca_result_cube[verts_round[i,0],verts_round[i,1],verts_round[i,2],0,1];
+    pca_z[i] = pca_result_cube[verts_round[i,0],verts_round[i,1],verts_round[i,2],0,2];
+
+scaler = MinMaxScaler();
+
+scaler.fit(np.append(np.append(pca_x.reshape(-1,1),pca_y.reshape(-1,1)),pca_z.reshape(-1,1)).reshape(-1,1))
+
+pca_x = scaler.transform(pca_x.reshape(-1,1));
+pca_y = scaler.transform(pca_y.reshape(-1,1));
+pca_z = scaler.transform(pca_z.reshape(-1,1));
+
+colourmap_x = cm.YlOrRd(pca_x);
+colourmap_y = cm.YlOrRd(pca_y);
+colourmap_z = cm.YlOrRd(pca_z);
+
+for j in range(verts.shape[0]):
+    for rgb in range(3):
+        colours_x[j,rgb] = colourmap_x[j,0,rgb];
+        colours_y[j,rgb] = colourmap_y[j,0,rgb];
+        colours_z[j,rgb] = colourmap_z[j,0,rgb];
+        
+color_trace2 = go.Scatter(x=[0 for _ in colours], y=[0 for _ in colours], mode='markers',
+                            marker= dict(colorscale= 'YlOrRd', reversescale = True, size=1,
+                                colorbar = dict(x=0.9199, y=0.5, len = 0.5), color=colours, showscale=True,
+                                )
+                            ) 
+
+datax = [go.Mesh3d(x=x,y=y,z=z, i=I,j=J,k=K, vertexcolor = colours_x), color_trace2]
+datay = [go.Mesh3d(x=x,y=y,z=z, i=I,j=J,k=K, vertexcolor = colours_y), color_trace2]
+dataz = [go.Mesh3d(x=x,y=y,z=z, i=I,j=J,k=K, vertexcolor = colours_z), color_trace2]
+
+figx = go.Figure(data = datax)
+figy = go.Figure(data = datay)
+figz = go.Figure(data = dataz)
+
+figx['layout'].update(dict(title= 'Stomach07 - x component',
+                            xaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
+                            yaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
+                            width = 1000,
+                            height = 1000,
+                            scene = dict(xaxis = dict(type = 'linear', showticklabels = False),
+                                        yaxis = dict(type = 'linear', showticklabels = False),
+                                        zaxis = dict(type = 'linear', showticklabels = False),
+                                        aspectratio=dict(x=1, y=1, z=0.75),
+                                        camera=dict(up = dict(x=0,y=0,z=1), eye=dict(x=-1.51, y=1.373, z=0.248), center=dict(x=0,y=0,z=0)
+                                        )
+                           )
+                     ))
+
+figy['layout'].update(dict(title= 'Stomach07 - y component',
+                            xaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
+                            yaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
+                            width = 1000,
+                            height = 1000,
+                            scene = dict(xaxis = dict(type = 'linear', showticklabels = False),
+                                        yaxis = dict(type = 'linear', showticklabels = False),
+                                        zaxis = dict(type = 'linear', showticklabels = False),
+                                        aspectratio=dict(x=1, y=1, z=0.75),
+                                        camera=dict(up = dict(x=0,y=0,z=1), eye=dict(x=-1.51, y=1.373, z=0.248), center=dict(x=0,y=0,z=0)
+                                        )
+                           )
+                     ))
+                                        
+figz['layout'].update(dict(title= 'Stomach07 - z component',
+                            xaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
+                            yaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
+                            width = 1000,
+                            height = 1000,
+                            scene = dict(xaxis = dict(type = 'linear', showticklabels = False),
+                                        yaxis = dict(type = 'linear', showticklabels = False),
+                                        zaxis = dict(type = 'linear', showticklabels = False),
+                                        aspectratio=dict(x=1, y=1, z=0.75),
+                                        camera=dict(up = dict(x=0,y=0,z=1), eye=dict(x=-1.51, y=1.373, z=0.248), center=dict(x=0,y=0,z=0)
+                                        )
+                           )
+                     ))
+
+py.plot(figx, filename = 'Stomach07 - x component')
+py.plot(figy, filename = 'Stomach07 - y component')
+py.plot(figz, filename = 'Stomach07 - z component')

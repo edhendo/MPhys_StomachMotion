@@ -13,16 +13,15 @@ import time
 import numpy as np
 import nibabel as nib
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from skimage import measure
-import math
-from sklearn.preprocessing import MinMaxScaler
 from matplotlib import cm
-from MulticoreTSNE import MulticoreTSNE as multiTSNE
 from sklearn.manifold import TSNE
 from sklearn.cluster import KMeans
-from mpl_toolkits.mplot3d import Axes3D
-from sklearn.metrics import silhouette_samples, silhouette_score
+from sklearn.metrics import silhouette_score
+from scipy.ndimage.morphology import binary_fill_holes
 
+###############################################################################
 def cart3sph(x,y,z):
     hxy = np.hypot(x, y)
     r = np.hypot(hxy, z)
@@ -30,6 +29,42 @@ def cart3sph(x,y,z):
     az = np.arctan2(y, x)
     return az, el, r
 
+def remove_keymap_conflicts(new_keys_set):
+    for prop in plt.rcParams:        
+        if prop.startswith('keymap.'):
+            keys = plt.rcParams[prop]
+            remove_list = set(keys) & new_keys_set
+            for key in remove_list:
+                keys.remove(key)              
+
+def multi_slice_viewer(volume):
+    remove_keymap_conflicts({'j','k'})
+    fig,ax = plt.subplots()
+    ax.volume = volume
+    ax.index = volume.shape[0] //2 
+    ax.imshow(volume[ax.index],aspect=1.0,cmap = 'nipy_spectral')
+    fig.canvas.mpl_connect('key_press_event',process_key)
+
+def process_key(event):
+    fig = event.canvas.figure
+    ax = fig.axes[0]
+    if event.key == 'j':
+        previous_slice(ax)
+    elif event.key == 'k':
+        next_slice(ax)
+    fig.canvas.draw()
+
+def previous_slice(ax):
+    volume = ax.volume
+    ax.index = (ax.index -1) % volume.shape[0]
+    ax.images[0].set_array(volume[ax.index])
+    
+
+def next_slice(ax):
+    volume = ax.volume
+    ax.index = (ax.index +1) % volume.shape[0] 
+    ax.images[0].set_array(volume[ax.index]) 
+###############################################################################
 tStart = time.time()
 data1 =""
 np.set_printoptions(precision=4, suppress=True)
@@ -37,7 +72,7 @@ np.set_printoptions(precision=4, suppress=True)
 # First extract all required warp vectors from the respective nifti images
 counter = 0
 for i in range(1,11):
-    locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\Stomach07\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
+    locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\Panc01\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
     locals()['hdr'+str(i)] = locals()['img'+str(i)].header
     locals()['data'+str(i)] = locals()['img'+str(i)].get_fdata()
     counter = counter + 1
@@ -47,7 +82,7 @@ for i in range(1,11):
 
 #------------------------------------------------------------------------------     
 # Read in the delineation nifti files using nibabel
-stomach = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\Stomach07\\stomachMask.nii');
+stomach = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\Panc01\\stomachMask.nii');
 # stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Pancreas\\niftyregStomach07StomachCrop\\stomach.nii')
 stomachHdr = stomach.header;
 stomachData = stomach.get_fdata();
@@ -59,8 +94,9 @@ stom = np.array(stomachData);
 
 # Use marching cubes to obtain the surface mesh of the stomach/stomach PRV delineations
 # input 3d volume - masking data form WM
+vertsInner, facesInner, normalsInner, valuesInner = measure.marching_cubes_lewiner(stom, 90)
 verts, faces, normals, values = measure.marching_cubes_lewiner(stom, 50)
-
+vertsOuter, facesOuter, normalsOuter, valuesOuter = measure.marching_cubes_lewiner(stom, 10)
 # create new array for faces - needs to have 4 components (-1 as fourth)
 facesnew = np.ndarray(shape = (faces.shape[0],4))
 for i in range(faces.shape[0]):
@@ -69,32 +105,148 @@ for i in range(faces.shape[0]):
     facesnew[i][3] = int(-1)     
 
 # round vertex numbers to nearest int
-verts_round = (np.around(verts)).astype(int)
+verts_round = (np.around(verts)).astype(int);
+vertsInner_round = (np.around(vertsInner)).astype(int);
+vertsOuter_round = (np.around(vertsOuter)).astype(int);
 
+# Now form boundary cubes from the inner and outer verts lists
+thiccShell = np.zeros(stom.shape);
+shellInner = np.zeros(stom.shape);
+for j in range(vertsOuter_round.shape[0]):
+    thiccShell[vertsOuter_round[j][0],vertsOuter_round[j][1],vertsOuter_round[j][2]] = 1;
+thiccShell = binary_fill_holes(thiccShell);
+
+for i in range(vertsInner_round.shape[0]):
+    shellInner[vertsInner_round[i][0],vertsInner_round[i][1],vertsInner_round[i][2]] = 1;
+shellInner = binary_fill_holes(shellInner);
+
+thiccShell = thiccShell ^ shellInner;
+
+for i in range(vertsInner_round.shape[0]):
+    thiccShell[vertsInner_round[i][0],vertsInner_round[i][1],vertsInner_round[i][2]] = 1;
+
+multi_slice_viewer(thiccShell);
+#--------------------------------------------------------------------------------------------------------------------------------
+# Display resulting triangular mesh
+fig = plt.figure(figsize=(10,10))
+ax = fig.add_subplot(111, projection='3d')
+
+# Fancy indexing: `verts[faces]` to generate a collection of triangles
+mesh = Poly3DCollection(vertsInner[facesInner])
+mesh.set_edgecolor('k')
+ax.add_collection3d(mesh)
+
+#set axis labels
+ax.set_xlabel("x-axis: L-R")
+ax.set_ylabel("y-axis: A-P")
+ax.set_zlabel("z-axis: C-C")
+
+#plot axis limits based on mesh dimensions
+ax.set_xlim(vertsInner[:,0].min() - 2, vertsInner[:,0].max() + 2)
+ax.set_ylim(vertsInner[:,1].min() - 2, vertsInner[:,1].max() + 2)  
+ax.set_zlim(vertsInner[:,2].min() - 2, vertsInner[:,2].max() + 2)  
+
+plt.tight_layout()
+plt.show()
+
+fig = plt.figure(figsize=(10,10))
+ax = fig.add_subplot(111, projection='3d')
+
+# Fancy indexing: `verts[faces]` to generate a collection of triangles
+mesh = Poly3DCollection(verts[faces])
+mesh.set_edgecolor('k')
+ax.add_collection3d(mesh)
+
+#set axis labels
+ax.set_xlabel("x-axis: L-R")
+ax.set_ylabel("y-axis: A-P")
+ax.set_zlabel("z-axis: C-C")
+
+#plot axis limits based on mesh dimensions
+ax.set_xlim(verts[:,0].min() - 2, verts[:,0].max() + 2)
+ax.set_ylim(verts[:,1].min() - 2, verts[:,1].max() + 2)  
+ax.set_zlim(verts[:,2].min() - 2, verts[:,2].max() + 2)  
+
+plt.tight_layout()
+plt.show()
+
+fig = plt.figure(figsize=(10,10))
+ax = fig.add_subplot(111, projection='3d')
+
+# Fancy indexing: `verts[faces]` to generate a collection of triangles
+mesh = Poly3DCollection(vertsOuter[facesOuter])
+mesh.set_edgecolor('k')
+ax.add_collection3d(mesh)
+
+#set axis labels
+ax.set_xlabel("x-axis: L-R")
+ax.set_ylabel("y-axis: A-P")
+ax.set_zlabel("z-axis: C-C")
+
+#plot axis limits based on mesh dimensions
+ax.set_xlim(vertsOuter[:,0].min() - 2, vertsOuter[:,0].max() + 2)
+ax.set_ylim(vertsOuter[:,1].min() - 2, vertsOuter[:,1].max() + 2)  
+ax.set_zlim(vertsOuter[:,2].min() - 2, vertsOuter[:,2].max() + 2)  
+
+plt.tight_layout()
+plt.show()
 #------------------------------------------------------------------------------           
-# Now strip out the stoamch data alone and arrange data for pca here
-extracted_DVF_Data = np.zeros((verts.shape[0],6*10))    
-   
-for a in range(verts.shape[0]):
-    eleIndex = 0;
-    for DVFnum in range(1,11):
-        # run over all DVFs
-        az, el, r = cart3sph(locals()['data'+str(DVFnum)][verts_round[a,0],verts_round[a,1],verts_round[a,2],0,0],locals()['data'+str(DVFnum)][verts_round[a,0],verts_round[a,1],verts_round[a,2],0,1],locals()['data'+str(DVFnum)][verts_round[a,0],verts_round[a,1],verts_round[a,2],0,2]);               
-        for ijk in range(3):
-            extracted_DVF_Data[a,eleIndex] = locals()['data'+str(DVFnum)][verts_round[a,0],verts_round[a,1],verts_round[a,2],0,ijk]
+# Now strip out the stomach data alone and arrange data for pca here
+useThickShell = True;
+
+if (useThickShell):
+    # Extract the DVF data corresponding to the thickened shell
+    pixels = 0;
+    for x in range(thiccShell.shape[0]):
+        for y in range(thiccShell.shape[1]):
+            for z in range(thiccShell.shape[2]):
+                if (thiccShell[x,y,z] == 1):
+                    pixels += 1;
+    extracted_DVF_Data = np.ndarray((pixels,6*10));
+    pixelNum = 0;
+    for x in range(thiccShell.shape[0]):
+        for y in range(thiccShell.shape[1]):
+            for z in range(thiccShell.shape[2]):
+                if (thiccShell[x,y,z] == 1):
+                    # value within shell
+                    eleIndex = 0;
+                    for DVFnum in range(1,11):
+                        # run over all DVFs
+                        az, el, r = cart3sph(locals()['data'+str(DVFnum)][x,y,z,0,0],locals()['data'+str(DVFnum)][x,y,z,0,1],locals()['data'+str(DVFnum)][x,y,z,0,2]);               
+                        for ijk in range(3):
+                            extracted_DVF_Data[pixelNum,eleIndex] = locals()['data'+str(DVFnum)][x,y,z,0,ijk]
+                            eleIndex += 1;
+                        extracted_DVF_Data[pixelNum,eleIndex] = r;                     # Magnitude
+                        eleIndex += 1;
+                        extracted_DVF_Data[pixelNum,eleIndex] = az;                    # Azimuthal
+                        eleIndex += 1;
+                        extracted_DVF_Data[pixelNum,eleIndex] = el;                    # Elevation
+                        eleIndex += 1;
+                    pixelNum += 1;
+
+else:
+    # Extract the DVF data from the shell alone
+    extracted_DVF_Data = np.zeros((verts.shape[0],6*10))   
+    for a in range(verts.shape[0]):
+        eleIndex = 0;
+        for DVFnum in range(1,11):
+            # run over all DVFs
+            az, el, r = cart3sph(locals()['data'+str(DVFnum)][verts_round[a,0],verts_round[a,1],verts_round[a,2],0,0],locals()['data'+str(DVFnum)][verts_round[a,0],verts_round[a,1],verts_round[a,2],0,1],locals()['data'+str(DVFnum)][verts_round[a,0],verts_round[a,1],verts_round[a,2],0,2]);               
+            for ijk in range(3):
+                extracted_DVF_Data[a,eleIndex] = locals()['data'+str(DVFnum)][verts_round[a,0],verts_round[a,1],verts_round[a,2],0,ijk]
+                eleIndex += 1;
+            extracted_DVF_Data[a,eleIndex] = r;                     # Magnitude
             eleIndex += 1;
-        extracted_DVF_Data[a,eleIndex] = r;                     # Magnitude
-        eleIndex += 1;
-        extracted_DVF_Data[a,eleIndex] = az;                    # Azimuthal
-        eleIndex += 1;
-        extracted_DVF_Data[a,eleIndex] = el;                    # Elevation
-        eleIndex += 1;
-        #extracted_DVF_Data[a,eleIndex] = verts_round[a,0];      # X position
-        #eleIndex += 1;
-        #extracted_DVF_Data[a,eleIndex] = verts_round[a,1];      # Y position
-        #eleIndex += 1;
-        #extracted_DVF_Data[a,eleIndex] = verts_round[a,2];      # Z position
-        #eleIndex += 1;
+            extracted_DVF_Data[a,eleIndex] = az;                    # Azimuthal
+            eleIndex += 1;
+            extracted_DVF_Data[a,eleIndex] = el;                    # Elevation
+            eleIndex += 1;
+            #extracted_DVF_Data[a,eleIndex] = verts_round[a,0];      # X position
+            #eleIndex += 1;
+            #extracted_DVF_Data[a,eleIndex] = verts_round[a,1];      # Y position
+            #eleIndex += 1;
+            #extracted_DVF_Data[a,eleIndex] = verts_round[a,2];      # Z position
+            #eleIndex += 1;
         
 #------------------------------------------------------------------------------
 # Now perform t-SNE analysis
@@ -102,11 +254,39 @@ for a in range(verts.shape[0]):
 tTSNE = time.time()
 tsneResult = TSNE(n_components=2, n_iter=5000, learning_rate=200, verbose=1).fit_transform(extracted_DVF_Data);
 print("t-SNE completed in:" + str(np.round(time.time()-tTSNE)) + " seconds")   
+
+# Now reassemble the data cube to align with the stomach model
+voxelNum = 0
+tsne_result_cube = np.zeros((thiccShell.shape[0],thiccShell.shape[1],thiccShell.shape[2],2));
+for a in range(thiccShell.shape[0]):
+    for b in range(thiccShell.shape[1]):
+        for c in range(thiccShell.shape[2]):
+            if (thiccShell[a,b,c] == 1):
+                tsne_result_cube[a][b][c][0] = tsneResult[voxelNum,0];
+                tsne_result_cube[a][b][c][1] = tsneResult[voxelNum,1];
+                voxelNum += 1; 
+
+tsneSurfaceValues = np.ndarray(shape = (verts.shape[0],2));
+# find the t-SNE values that correspond with mesh vertices
+# then put the t-SNE values that match the rounded vertex values into an array
+for i in range(verts.shape[0]):
+    tsneSurfaceValues[i,0] = tsne_result_cube[verts_round[i,0],verts_round[i,1],verts_round[i,2],0];
+    tsneSurfaceValues[i,1] = tsne_result_cube[verts_round[i,0],verts_round[i,1],verts_round[i,2],1];
+
 plt.figure()
 plt.scatter(tsneResult[:,0],tsneResult[:,1],marker='o',s=10)
 plt.xlabel("t-SNE Component 1", fontsize = "18")
 plt.ylabel("t-SNE Component 2", fontsize = "18")       
 plt.show();
+
+plt.figure()
+plt.scatter(tsneSurfaceValues[:,0],tsneSurfaceValues[:,1],marker='o',s=10)
+plt.xlabel("t-SNE Component 1", fontsize = "18")
+plt.ylabel("t-SNE Component 2", fontsize = "18")       
+plt.show();
+
+if (useThickShell):
+    tsneResult = tsneSurfaceValues;
 #------------------------------------------------------------------------------
 # Now perform k-means clustering
 '''
@@ -136,7 +316,7 @@ plt.scatter(cluster1[:,0],cluster1[:,1],marker='o',s=10,color='k')
 plt.xlabel("t-SNE Component 1", fontsize = "18")
 plt.ylabel("t-SNE Component 2", fontsize = "18")       
 plt.show();
-
+'''
 clusters = 3
 kmeans3 = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
 
@@ -193,7 +373,7 @@ plt.scatter(cluster3[:,0],cluster3[:,1],marker='o',s=10,color='y')
 plt.xlabel("t-SNE Component 1", fontsize = "18")
 plt.ylabel("t-SNE Component 2", fontsize = "18")       
 plt.show();
-'''
+
 clusters = 5
 kmeans5 = KMeans(n_clusters=clusters, random_state=100).fit(tsneResult);
 
@@ -254,7 +434,7 @@ plt.scatter(cluster5[:,0],cluster5[:,1],marker='o',s=10,color='c')
 plt.xlabel("t-SNE Component 1", fontsize = "18")
 plt.ylabel("t-SNE Component 2", fontsize = "18")       
 plt.show();
-'''
+
 clusters = 7
 kmeans7 = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
 
@@ -286,7 +466,7 @@ plt.scatter(cluster6[:,0],cluster6[:,1],marker='o',s=10,color='m')
 plt.xlabel("t-SNE Component 1", fontsize = "18")
 plt.ylabel("t-SNE Component 2", fontsize = "18")       
 plt.show();
-'''
+
 #------------------------------------------------------------------------------
 # Now assign colour values to each of the t-SNE clusters
 tsne_vertex_colours5 = np.ndarray((verts.shape[0],3));
@@ -302,7 +482,7 @@ for i in range(verts.shape[0]):
 #------------------------------------------------------------------------------
 ######################## Perform VRML file write here #########################
 
-wrlFile5 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach07\\just_shell_clustered_interpolated5.wrl','w');
+wrlFile5 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach07\\just_shell_clustered_interpolated5thick.wrl','w');
 #wrlFile5 = open('D:\data\\Pancreas\\MPhys\\TSNE results\\stomachTSNE.wrl','w');
 wrlFile5.write('#VRML V2.0 utf8\nWorldInfo {title "just_shell_clustered_interpolated5"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
@@ -328,7 +508,7 @@ for i in range(faces.shape[0]):
 wrlFile5.write("	]\n	}\n}");
 wrlFile5.close();
 
-wrlFile6 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach07\\just_shell_clustered_interpolated6.wrl','w');
+wrlFile6 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach07\\just_shell_clustered_interpolated6thick.wrl','w');
 #wrlFile6 = open('D:\data\\Pancreas\\MPhys\\TSNE results\\stomachTSNE.wrl','w');
 wrlFile6.write('#VRML V2.0 utf8\nWorldInfo {title "just_shell_clustered_interpolated6"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
@@ -353,6 +533,7 @@ for i in range(faces.shape[0]):
 
 wrlFile6.write("	]\n	}\n}");
 wrlFile6.close();
+
 '''
 wrlFile7 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach07\\just_shell_clustered7.wrl','w');
 #wrlFile7 = open('D:\data\\Pancreas\\MPhys\\TSNE results\\stomachTSNE.wrl','w');

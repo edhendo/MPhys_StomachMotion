@@ -28,7 +28,7 @@ stomPRV= np.array(stomach_PRVData);
 # identify edge of the stomach delineation here
 stomachEdge = np.zeros(stomachData.shape);
 for slice in range(stomachData.shape[0]):
-    stomachEdge[slice,:,:] = feature.canny(stomachData[slice,:,:],5);
+    stomachEdge[slice,:,:] = feature.canny(stomachData[slice,:,:],5); # EDGE DETECTION
 # perform subtraction step
 outerShell = stomach_PRVData - stomachEdge
 # perform element-wise multiplication stage here

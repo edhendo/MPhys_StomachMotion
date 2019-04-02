@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 
 #niftyregPanc01StomachCropPCAcube.npy
-pca = np.load('C:\\MPhys\\Data\\Intra Patient\\Pancreas\\PCA\\pcaShellPanc01.npy')
+#pca = np.load('C:\\MPhys\\Data\\Intra Patient\\Pancreas\\PCA\\pcaShellPanc01.npy')
 #plot image slice using imshow()
 #use transpose to switch to horizontal slices
 #assign keys j and k to enable us to move forward/backwar through the slices
@@ -52,5 +52,5 @@ def next_slice(ax):
     ax.images[0].set_array(volume[ax.index]) 
 
 
-rotated = np.rot90(np.rot90(pca,2,(0,2)),1,(1,2))
-multi_slice_viewer(rotated[:,:,:,0])
+#rotated = np.rot90(np.rot90(pca,2,(0,2)),1,(1,2))
+#multi_slice_viewer(rotated[:,:,:,0])

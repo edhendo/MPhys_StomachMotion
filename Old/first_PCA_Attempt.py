@@ -4,13 +4,16 @@ Created on Tue Nov 20 16:20:53 2018
 
 @author: Edward Henderson
 """
+import time
 import numpy as np
 import nibabel as nib
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import MinMaxScaler
+import matplotlib.pyplot as plt
 
 np.set_printoptions(precision=2, suppress=True)
 
-def myPCA(data, dims_rescaled_data=2):
+def myPCA(data, dims_rescaled_data=9):
     """
     returns: data transformed in 2 dims/columns + regenerated original data
     pass in: data as 2D NumPy array
@@ -20,8 +23,11 @@ def myPCA(data, dims_rescaled_data=2):
     m, n = data.shape
     # mean centre the data
     data -= data.mean(axis=0)
-    # calculate the covariance matrix
-    R = np.cov(data, rowvar=False)
+    # calculate the implicit covariance matrix (transpose is swapped around during the dot product multiplication)
+    R = np.zeros((n,n))
+    for g in range(data.shape[1]):
+        R += (((data[:,g].reshape(m,1)).T).dot(data[:,g].reshape(m,1)))
+        R = (1/(n-1))*R
     # calculate eigenvectors & eigenvalues of the covariance matrix
     # use 'eigh' rather than 'eig' since R is symmetric, 
     # the performance gain is substantial
@@ -38,38 +44,52 @@ def myPCA(data, dims_rescaled_data=2):
     evals = evals[:dims_rescaled_data]
     # carry out the transformation on the data using eigenvectors
     # and return the re-scaled data, eigenvalues, and eigenvectors
-    #return np.dot(evecs.T, data.T).T, evals, evecs
-    return evecs, evals
+    return np.dot(data,evecs), evals, evecs
+    #return evecs, evals
     
-def deVectorize(dataVec, iRange, jRange, kRange):
-    u = np.zeros((iRange, jRange, kRange))
-    v = np.zeros((iRange, jRange, kRange))
-    w = np.zeros((iRange, jRange, kRange))
-    for i in range(iRange):
-        for j in range(jRange):
-            for k in range(kRange):
-                u[i][j][k] = dataVec[i][j][k][0][0]
-                v[i][j][k] = dataVec[i][j][k][0][1]
-                w[i][j][k] = dataVec[i][j][k][0][2]
-    return u,v,w
+tStart = time.time()
+data1 =""
+np.set_printoptions(precision=4, suppress=True)
+
+# Define which scan is the reference scan, aka the maximum exhale scan
+refScanNum = 9
+#------------------------------------------------------------------------------
+# PANC01 has maxExhale at 9 (including the first two boxes)
+# All 9 except stomach02 = 10
+#------------------------------------------------------------------------------
+# First extract all required warp vectors from the respective nifti images
 counter = 0
 for i in range(1,11):
-    if i != 6:
-        locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\101ExMidPFix\\warp{0}.nii'.format(i))
+    if True: #i != refScanNum: #Not needed right now since the reference scan is set to -1*averagewarp
+        locals()["img"+str(i)] = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Stomach02\\warp{0}.nii'.format(i+2))
+        #locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\Panc01\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
         locals()['hdr'+str(i)] = locals()['img'+str(i)].header
         locals()['data'+str(i)] = locals()['img'+str(i)].get_fdata()
-        locals()["u"+str(i)],locals()["v"+str(i)],locals()["w"+str(i)] = deVectorize(locals()["data"+str(i)],np.shape(locals()["data"+str(i)])[0],np.shape(locals()["data"+str(i)])[1],np.shape(locals()["data"+str(i)])[2])
         counter = counter + 1
         print("extracted warp vectors from DVF " + str(counter) + " out of 9")
+        if counter == 10:
+            print("Warning: included refScan")
 
-testVec = [[u1[50][50][50],v1[50][50][50],w1[50][50][50]]]
-for i in [10,9,8,7,5,4,3,2]:
-    testVec = np.concatenate((testVec,[[locals()["u"+str(i)][50][50][50],locals()["v"+str(i)][50][50][50],locals()["w"+str(i)][50][50][50]]]),axis=0)
-    
-pca = PCA(n_components=2)
+# first construct the big matrix
+data = np.zeros((data1.shape[0]*data1.shape[1]*data1.shape[2]*3,10)) # change to 10 if refScan included !!!
+# 3 displacement values per voxel, want correlation between all
 
-pca.fit_transform(testVec)
+# fill the matrix V
+t1 = time.time()
+DVFindex = 0
+for DVFnum in range(1,11):
+    n = 0
+    if True: #DVFnum != refScanNum: Again not needed right now since we want to include the reference scan (mean centering)       
+        for x1 in range(data1.shape[0]):
+            for y1 in range(data1.shape[1]):
+                for z1 in range(data1.shape[2]):
+                    for j in range(3):
+                        data[n][DVFindex] = locals()['data'+str(DVFnum)][x1][y1][z1][0][j]
+                        n = n + 1
+        DVFindex = DVFindex + 1
+print("Matrix filled in: " + str(np.round(time.time()-t1)) + " seconds")
     
+pca, evals, evecs = myPCA(data, dims_rescaled_data=9)
     
     
     

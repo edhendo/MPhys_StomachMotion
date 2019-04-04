@@ -491,7 +491,6 @@ wrlFile5 = open('C:\MPhys\\Visualisation\\TSNE\\Panc01\\stomach_shell_clustered5
 wrlFile5.write('#VRML V2.0 utf8\nWorldInfo {title "stomach_shell_clustered5_interpolated_thick"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
-    verts[i,1], verts[i,2] = swap(verts[i,1], verts[i,2]);
     for j in range(verts.shape[1]):
         wrlFile5.write(str("{:.6f}".format(verts[i][j])) + "  ");
     wrlFile5.write("\n");              
@@ -506,6 +505,7 @@ for i in range(tsne_vertex_colours5.shape[0]):
 wrlFile5.write("]\n	}\n	colorPerVertex TRUE	\n	coordIndex [\n");
     
 for i in range(faces.shape[0]):
+    faces[i,1], faces[i,2] = swap(faces[i,1], faces[i,2]);
     for j in range(3):
         wrlFile5.write(str(int(faces[i][j])) + "  ");
     wrlFile5.write(str(int(-1))+ "\n");              
@@ -517,7 +517,6 @@ wrlFile6 = open('C:\MPhys\\Visualisation\\TSNE\\Panc01\\stomach_shell_clustered6
 wrlFile6.write('#VRML V2.0 utf8\nWorldInfo {title "stomach_shell_clustered5_interpolated_thick"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
-    verts[i,1], verts[i,2] = swap(verts[i,1], verts[i,2]);
     for j in range(verts.shape[1]):
         wrlFile6.write(str("{:.6f}".format(verts[i][j])) + "  ");
     wrlFile6.write("\n");              
@@ -532,6 +531,7 @@ for i in range(tsne_vertex_colours6.shape[0]):
 wrlFile6.write("]\n	}\n	colorPerVertex TRUE	\n	coordIndex [\n");
     
 for i in range(faces.shape[0]):
+    faces[i,1], faces[i,2] = swap(faces[i,1], faces[i,2]);
     for j in range(3):
         wrlFile6.write(str(int(faces[i][j])) + "  ");
     wrlFile6.write(str(int(-1))+ "\n");              
@@ -545,7 +545,6 @@ wrlFile7 = open('C:\MPhys\\Visualisation\\TSNE\\Panc01\\just_shell_clustered7.wr
 wrlFile7.write('#VRML V2.0 utf8\nWorldInfo {title "just_shell_clustered7"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
-    verts[i,1], verts[i,2] = swap(verts[i,1], verts[i,2]);
     for j in range(verts.shape[1]):
         wrlFile7.write(str("{:.6f}".format(verts[i][j])) + "  ");
     wrlFile7.write("\n");              
@@ -560,6 +559,7 @@ for i in range(tsne_vertex_colours7.shape[0]):
 wrlFile7.write("]\n	}\n	colorPerVertex TRUE	\n	coordIndex [\n");
     
 for i in range(faces.shape[0]):
+    faces[i,1], faces[i,2] = swap(faces[i,1], faces[i,2]);
     for j in range(3):
         wrlFile7.write(str(int(faces[i][j])) + "  ");
     wrlFile7.write(str(int(-1))+ "\n");              

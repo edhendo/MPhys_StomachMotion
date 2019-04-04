@@ -16,6 +16,12 @@ import nibabel as nib
 from sklearn.preprocessing import MinMaxScaler
 from matplotlib import cm
 
+def swap(x,y):
+    temp = x;
+    x = y;
+    y = temp;
+    return x, y;
+
 tStart = time.time();
 np.set_printoptions(precision=4, suppress=True);
 #---------- load data and create mesh ----------------------------
@@ -51,6 +57,8 @@ x,y,z = zip(*verts)
 x = np.array(x)
 y = np.array(y)
 z = np.array(z)
+for edward in range(faces.shape[0]):
+    faces[edward,1], faces[edward,2] = swap(faces[edward,1], faces[edward,2]);
 I,J,K = tri_indices(faces)
 
 #------------------------------------------------ Magnitude graph plotting ---------------------------------------------

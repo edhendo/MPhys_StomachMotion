@@ -20,13 +20,13 @@ tStart = time.time();
 np.set_printoptions(precision=4, suppress=True);
 #---------- load data and create mesh ----------------------------
 #mag_pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Panc01StomachCropMagnitudePCAcube.npy');
-mag_pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaMagStomach07.npy');
+mag_pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaMagStomach05.npy');
 #pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Stomach04PCAcube.npy');
-pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaStomach07.npy') 
+pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaStomach05T.npy') 
 
 # Read in the delineation nifti files using nibabel
 #stomach = nib.load('C:\MPhys\\stomach.nii');
-stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Stomach07\\stomachMask.nii')
+stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Stomach05\\stomachMask.nii')
 stomachHdr = stomach.header;
 stomachData = stomach.get_fdata();
 
@@ -89,7 +89,7 @@ color_trace = go.Scatter(x=[0 for _ in colours],
 data = [go.Mesh3d(x=x,y=y,z=z, i=I,j=J,k=K, vertexcolor = colours), color_trace]
 
 fig = go.Figure(data=data)
-fig['layout'].update(dict(title= 'Stomach07 - PCA Magnitudes',
+fig['layout'].update(dict(title= 'Stomach05 - PCA Magnitudes',
                             xaxis = dict(type = 'linear', showticklabels = False, showgrid = False,
                                         zeroline = False,
                                         autorange = True),
@@ -102,11 +102,11 @@ fig['layout'].update(dict(title= 'Stomach07 - PCA Magnitudes',
                                         yaxis = dict(type = 'linear', showticklabels = False),
                                         zaxis = dict(type = 'linear', showticklabels = False),
                                         aspectratio=dict(x=1, y=1, z=0.75),
-                                        camera=dict(up = dict(x=0,y=0,z=1), eye=dict(x=-1.51, y=1.373, z=0.248), center=dict(x=0,y=0,z=0)
+                                        camera=dict(up = dict(x=0.1082,y=0.9928,z=0.0519), eye=dict(x=0.2767, y=-0.1364, z=2.0326), center=dict(x=0,y=0,z=0)
                                         )
                            )
                      ))
-py.plot(fig, filename = 'Stomach07 - PCA Magnitudes.html')
+py.plot(fig, filename = 'Stomach05 - PCA Magnitudes.html')
 
 #-------------------------------------------------- x,y,z graph plotting ------------------------------------------------------
 #find the PCA vector values that correspond with mesh vertices
@@ -158,7 +158,7 @@ figx = go.Figure(data = datax)
 figy = go.Figure(data = datay)
 figz = go.Figure(data = dataz)
 
-figx['layout'].update(dict(title= 'Stomach07 - x component',
+figx['layout'].update(dict(title= 'Stomach05 - x component',
                             xaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
                             yaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
                             width = 1000,
@@ -167,12 +167,12 @@ figx['layout'].update(dict(title= 'Stomach07 - x component',
                                         yaxis = dict(type = 'linear', showticklabels = False),
                                         zaxis = dict(type = 'linear', showticklabels = False),
                                         aspectratio=dict(x=1, y=1, z=0.75),
-                                        camera=dict(up = dict(x=0,y=0,z=1), eye=dict(x=-1.51, y=1.373, z=0.248), center=dict(x=0,y=0,z=0)
+                                        camera=dict(up = dict(x=0.1082,y=0.9928,z=0.0519), eye=dict(x=0.2767, y=-0.1364, z=2.0326), center=dict(x=0,y=0,z=0)
                                         )
                            )
                      ))
 
-figy['layout'].update(dict(title= 'Stomach07 - y component',
+figy['layout'].update(dict(title= 'Stomach05 - y component',
                             xaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
                             yaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
                             width = 1000,
@@ -181,12 +181,12 @@ figy['layout'].update(dict(title= 'Stomach07 - y component',
                                         yaxis = dict(type = 'linear', showticklabels = False),
                                         zaxis = dict(type = 'linear', showticklabels = False),
                                         aspectratio=dict(x=1, y=1, z=0.75),
-                                        camera=dict(up = dict(x=0,y=0,z=1), eye=dict(x=-1.51, y=1.373, z=0.248), center=dict(x=0,y=0,z=0)
+                                        camera=dict(up = dict(x=0.1082,y=0.9928,z=0.0519), eye=dict(x=0.2767, y=-0.1364, z=2.0326), center=dict(x=0,y=0,z=0)
                                         )
                            )
                      ))
                                         
-figz['layout'].update(dict(title= 'Stomach07 - z component',
+figz['layout'].update(dict(title= 'Stomach05 - z component',
                             xaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
                             yaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
                             width = 1000,
@@ -195,11 +195,11 @@ figz['layout'].update(dict(title= 'Stomach07 - z component',
                                         yaxis = dict(type = 'linear', showticklabels = False),
                                         zaxis = dict(type = 'linear', showticklabels = False),
                                         aspectratio=dict(x=1, y=1, z=0.75),
-                                        camera=dict(up = dict(x=0,y=0,z=1), eye=dict(x=-1.51, y=1.373, z=0.248), center=dict(x=0,y=0,z=0)
+                                        camera=dict(up = dict(x=0.1082,y=0.9928,z=0.0519), eye=dict(x=0.2767, y=-0.1364, z=2.0326), center=dict(x=0,y=0,z=0)
                                         )
                            )
                      ))
 
-py.plot(figx, filename = 'Stomach07 - x component')
-py.plot(figy, filename = 'Stomach07 - y component')
-py.plot(figz, filename = 'Stomach07 - z component')
+py.plot(figx, filename = 'Stomach05T - x component')
+py.plot(figy, filename = 'Stomach05T - y component')
+py.plot(figz, filename = 'Stomach05T - z component')

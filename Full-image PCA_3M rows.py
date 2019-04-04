@@ -65,7 +65,7 @@ for DVFnum in range(1,11):
     if True: #DVFnum != refScanNum: Again not needed right now since we want to include the reference scan (mean centering)       
         for x1 in range(data1.shape[0]):
             for y1 in range(data1.shape[1]):
-                for z1 in range(data1.shape[2]-1,-1,-1):
+                for z1 in range(data1.shape[2]):
                     for j in range(3):
                         data[n][DVFindex] = locals()['data'+str(DVFnum)][x1][y1][z1][0][j]
                         n = n + 1
@@ -77,7 +77,7 @@ pca = PCA(n_components=9) # set to N-1 components for correlated matrix PCA
 pca_result = pca.fit_transform(data)
 print("PCA completed in: " + str(np.round(time.time()-t2)) + " seconds")
 print("Explained variation per principal component: {}".format(pca.explained_variance_ratio_))
-#np.save('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\EVR_Stomach07.npy',pca.explained_variance_ratio_)
+np.save('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\EVR_Stomach05.npy',pca.explained_variance_ratio_)
 # sklearn PCA uses the implicit covariance (correlated) matrix PCA method outlined in Sohn 2005
 
 # Now read the principle components from the PCA back into a data cube for slice by slice visualisation
@@ -95,7 +95,7 @@ for PCAcompIndex2 in range(9):
     voxelNum = 0
     for x2 in range(data1.shape[0]):
         for y2 in range(data1.shape[1]):
-            for z2 in range(data1.shape[2]-1,-1,-1):
+            for z2 in range(data1.shape[2]):
                     for k in range(3):
                         pca_result_cube[x2][y2][z2][PCAcompIndex2][k] = locals()['scaledComponent' + str(PCAcompIndex2 + 1)][voxelNum]
                         voxelNum = voxelNum + 1
@@ -106,7 +106,7 @@ print("Data reshaped in: " + str(np.round(time.time()-t3)) + " seconds")
 print("Program completed in: " + str(np.round(time.time()-tStart)) + " seconds")
 
 # Now save the resultant PCA data as .npy arrays
-np.save('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaStomach05T.npy', pca_result_cube)
+np.save('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaStomach05.npy', pca_result_cube)
 #np.save('C:\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAcube.npy', pca_result_cube)
 #np.save('C:\MPhys\\Data\\PCA results\\Stomach04PCAcube.npy', pca_result_cube)
 # accessed through np.load(path)
@@ -115,7 +115,7 @@ np.save('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaStomach05T.npy', pca_re
 #produce graph of variance ratios
 pcomponents = np.linspace(1,9,9)
 plt.plot(pcomponents, pca.explained_variance_ratio_,'o-', markersize = 5, clip_on = False)
-plt.title('Percentage Variance - Stomach07 Stomach Crop',fontsize = 16)
+plt.title('Percentage Variance - Stomach05 Stomach Crop',fontsize = 16)
 plt.xlabel('Principal Component', fontsize = 16)
 plt.ylabel('Percentage of total variance', fontsize = 16)
 plt.ylim(0,1.0)
@@ -125,7 +125,7 @@ plt.yticks(fontsize = 14)
 plt.grid(True)
 
 #plt.savefig('C:\MPhys\\Python_Images\\niftyregPanc01StomachCrop\\PCvariance.png')
-#plt.savefig('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA Graphs and Images\\Stomach07_Variance.png')
+plt.savefig('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA Graphs and Images\\Stomach05_Variance.png')
 #plt.savefig('C:\MPhys\\Python_Images\\Stomach04\\PCvariance.png')
 
 

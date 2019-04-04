@@ -28,7 +28,7 @@ np.set_printoptions(precision=4, suppress=True);
 #mag_pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Panc01StomachCropMagnitudePCAcube.npy');
 mag_pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaMagStomach05.npy');
 #pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Stomach04PCAcube.npy');
-pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaStomach05T.npy') 
+pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaStomach05.npy') 
 
 # Read in the delineation nifti files using nibabel
 #stomach = nib.load('C:\MPhys\\stomach.nii');
@@ -39,7 +39,12 @@ stomachData = stomach.get_fdata();
 # numpy array conversion
 # stom = np.rot90(np.rot90(np.array(stomachData),2,(0,2)),1,(1,2));
 stom = np.array(stomachData);
-
+stomF = np.flipud(stom)
+stomLR = np.fliplr(stom)
+stomZF = np.ndarray(shape = (stom.shape[0],stom.shape[1],stom.shape[2]))
+for r in range(stom.shape[1]):
+    stomZF[:,r,:] = np.fliplr(stom[:,r,:])
+    
 ##################### functions ###############################
 
 def tri_indices(faces):
@@ -52,7 +57,7 @@ def tri_indices(faces):
 
 # Use marching cubes to obtain the surface mesh of the stomach/stomach PRV delineations
 # input 3d volume - masking data form WM
-verts, faces, normals, values = measure.marching_cubes_lewiner(stom, 50)
+verts, faces, normals, values = measure.marching_cubes_lewiner(stomZF, 50)
 x,y,z = zip(*verts)
 x = np.array(x)
 y = np.array(y)
@@ -114,7 +119,7 @@ fig['layout'].update(dict(title= 'Stomach05 - PCA Magnitudes',
                                         )
                            )
                      ))
-py.plot(fig, filename = 'Stomach05 - PCA Magnitudes.html')
+py.plot(fig, filename = 'Stomach05T - PCA Magnitudes.html')
 
 #-------------------------------------------------- x,y,z graph plotting ------------------------------------------------------
 #find the PCA vector values that correspond with mesh vertices

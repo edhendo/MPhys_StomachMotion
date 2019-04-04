@@ -22,6 +22,12 @@ from sklearn.metrics import silhouette_score
 from scipy.ndimage.morphology import binary_fill_holes
 
 ###############################################################################
+def swap(x,y):
+    temp = x;
+    x = y;
+    y = temp;
+    return x, y;
+
 def cart3sph(x,y,z):
     hxy = np.hypot(x, y)
     r = np.hypot(hxy, z)
@@ -83,7 +89,6 @@ for i in range(1,11):
 #------------------------------------------------------------------------------     
 # Read in the delineation nifti files using nibabel
 stomach = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\Panc01\\stomachMask.nii');
-# stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Pancreas\\niftyregStomach07StomachCrop\\stomach.nii')
 stomachHdr = stomach.header;
 stomachData = stomach.get_fdata();
 
@@ -289,7 +294,7 @@ if (useThickShell):
     tsneResult = tsneSurfaceValues;
 #------------------------------------------------------------------------------
 # Now perform k-means clustering
-'''
+
 clusters = 2
 kmeans2 = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
 
@@ -316,7 +321,7 @@ plt.scatter(cluster1[:,0],cluster1[:,1],marker='o',s=10,color='k')
 plt.xlabel("t-SNE Component 1", fontsize = "18")
 plt.ylabel("t-SNE Component 2", fontsize = "18")       
 plt.show();
-'''
+
 clusters = 3
 kmeans3 = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
 
@@ -436,7 +441,7 @@ plt.ylabel("t-SNE Component 2", fontsize = "18")
 plt.show();
 
 clusters = 7
-kmeans7 = KMeans(n_clusters=clusters, random_state=10).fit(tsneResult);
+kmeans7 = KMeans(n_clusters=clusters, random_state=100).fit(tsneResult);
 
 # The silhouette_score gives the average value for all the samples.
 # This gives a perspective into the density and separation of the formed clusters
@@ -475,18 +480,18 @@ tsne_vertex_colours6 = np.ndarray((verts.shape[0],3));
 
 for i in range(verts.shape[0]):
     for rgb in range(3):
-        tsne_vertex_colours5[i,rgb] = cm.Dark2(kmeans5.labels_[i])[rgb];
-        tsne_vertex_colours6[i,rgb] = cm.Dark2(kmeans6.labels_[i])[rgb];
-        #tsne_vertex_colours7[i,rgb] = cm.Dark2(kmeans7.labels_[i])[rgb];
+        tsne_vertex_colours5[i,rgb] = cm.Set1(kmeans5.labels_[i])[rgb];
+        tsne_vertex_colours6[i,rgb] = cm.Set1(kmeans6.labels_[i])[rgb];
+        #tsne_vertex_colours7[i,rgb] = cm.Set1(kmeans7.labels_[i])[rgb];
 
 #------------------------------------------------------------------------------
 ######################## Perform VRML file write here #########################
 
-wrlFile5 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach07\\just_shell_clustered_interpolated5thick.wrl','w');
-#wrlFile5 = open('D:\data\\Pancreas\\MPhys\\TSNE results\\stomachTSNE.wrl','w');
-wrlFile5.write('#VRML V2.0 utf8\nWorldInfo {title "just_shell_clustered_interpolated5"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
+wrlFile5 = open('C:\MPhys\\Visualisation\\TSNE\\Panc01\\stomach_shell_clustered5_interpolated_thick.wrl','w');
+wrlFile5.write('#VRML V2.0 utf8\nWorldInfo {title "stomach_shell_clustered5_interpolated_thick"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
+    verts[i,1], verts[i,2] = swap(verts[i,1], verts[i,2]);
     for j in range(verts.shape[1]):
         wrlFile5.write(str("{:.6f}".format(verts[i][j])) + "  ");
     wrlFile5.write("\n");              
@@ -508,11 +513,11 @@ for i in range(faces.shape[0]):
 wrlFile5.write("	]\n	}\n}");
 wrlFile5.close();
 
-wrlFile6 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach07\\just_shell_clustered_interpolated6thick.wrl','w');
-#wrlFile6 = open('D:\data\\Pancreas\\MPhys\\TSNE results\\stomachTSNE.wrl','w');
-wrlFile6.write('#VRML V2.0 utf8\nWorldInfo {title "just_shell_clustered_interpolated6"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
+wrlFile6 = open('C:\MPhys\\Visualisation\\TSNE\\Panc01\\stomach_shell_clustered6_interpolated_thick.wrl','w');
+wrlFile6.write('#VRML V2.0 utf8\nWorldInfo {title "stomach_shell_clustered5_interpolated_thick"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
+    verts[i,1], verts[i,2] = swap(verts[i,1], verts[i,2]);
     for j in range(verts.shape[1]):
         wrlFile6.write(str("{:.6f}".format(verts[i][j])) + "  ");
     wrlFile6.write("\n");              
@@ -535,11 +540,12 @@ wrlFile6.write("	]\n	}\n}");
 wrlFile6.close();
 
 '''
-wrlFile7 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach07\\just_shell_clustered7.wrl','w');
+wrlFile7 = open('C:\MPhys\\Visualisation\\TSNE\\Panc01\\just_shell_clustered7.wrl','w');
 #wrlFile7 = open('D:\data\\Pancreas\\MPhys\\TSNE results\\stomachTSNE.wrl','w');
 wrlFile7.write('#VRML V2.0 utf8\nWorldInfo {title "just_shell_clustered7"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
+    verts[i,1], verts[i,2] = swap(verts[i,1], verts[i,2]);
     for j in range(verts.shape[1]):
         wrlFile7.write(str("{:.6f}".format(verts[i][j])) + "  ");
     wrlFile7.write("\n");              

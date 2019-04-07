@@ -78,7 +78,7 @@ np.set_printoptions(precision=4, suppress=True)
 # First extract all required warp vectors from the respective nifti images
 counter = 0
 for i in range(1,11):
-    locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\Stomach07\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
+    locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\Stomach05\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
     locals()['hdr'+str(i)] = locals()['img'+str(i)].header
     locals()['data'+str(i)] = locals()['img'+str(i)].get_fdata()
     counter = counter + 1
@@ -88,13 +88,13 @@ for i in range(1,11):
 
 #------------------------------------------------------------------------------     
 # Read in the delineation nifti files using nibabel
-stomach = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\Stomach07\\stomachMask.nii');
+stomach = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\Stomach05\\stomachMask.nii');
 stomachHdr = stomach.header;
 stomachData = stomach.get_fdata();
 
 # numpy array conversion
 #stom = np.rot90(np.rot90(np.array(stomachData),2,(0,2)),1,(1,2));
-stom = np.array(stomachData);
+stom = np.flipud(np.array(stomachData));
 #stomPRV= np.array(stomach_PRVData);
 
 # Use marching cubes to obtain the surface mesh of the stomach/stomach PRV delineations
@@ -487,7 +487,7 @@ for i in range(verts.shape[0]):
 #------------------------------------------------------------------------------
 ######################## Perform VRML file write here #########################
 
-wrlFile5 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach07\\stomach_shell_clustered5_interpolated_thick.wrl','w');
+wrlFile5 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach05\\stomach_shell_clustered5_interpolated_thick_udFlipped.wrl','w');
 wrlFile5.write('#VRML V2.0 utf8\nWorldInfo {title "stomach_shell_clustered5_interpolated_thick"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
@@ -514,7 +514,7 @@ wrlFile5.write("	]\n	}\n}");
 wrlFile5.close();
 
 '''
-wrlFile6 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach07\\stomach_shell_clustered6_interpolated_thick.wrl','w');
+wrlFile6 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach05\\stomach_shell_clustered6_interpolated_thick.wrl','w');
 wrlFile6.write('#VRML V2.0 utf8\nWorldInfo {title "stomach_shell_clustered5_interpolated_thick"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
@@ -540,7 +540,7 @@ wrlFile6.write("	]\n	}\n}");
 wrlFile6.close();
 
 
-wrlFile7 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach07\\just_shell_clustered7.wrl','w');
+wrlFile7 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach05\\just_shell_clustered7.wrl','w');
 #wrlFile7 = open('D:\data\\Pancreas\\MPhys\\TSNE results\\stomachTSNE.wrl','w');
 wrlFile7.write('#VRML V2.0 utf8\nWorldInfo {title "just_shell_clustered7"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 

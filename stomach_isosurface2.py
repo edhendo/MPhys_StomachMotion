@@ -21,9 +21,9 @@ def magnitude(x,y,z):
 tStart = time.time();
 np.set_printoptions(precision=4, suppress=True);
 #pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAcube.npy');
-pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaStomach07.npy')
+pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\pcaPanc01.npy')
 #mag_pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Panc01StomachCropMagnitudePCAcube.npy');
-mag_pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaMagStomach07.npy');
+mag_pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\pcaMagPanc01.npy');
 #pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAcube.npy');
 #mag_pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Panc01StomachCropMagnitudePCAcube.npy');
 
@@ -32,18 +32,22 @@ toggle = True; # set to True for using pca on magnitudes rather than magnitude o
 
 # Read in the delineation nifti files using nibabel
 #stomach = nib.load('C:\MPhys\\stomach.nii');
-stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Stomach07\\stomachMask.nii')
+stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\Panc01\\stomachMask.nii')
 stomachHdr = stomach.header;
 stomachData = stomach.get_fdata();
 
 # numpy array conversion
 #stom = np.rot90(np.rot90(np.array(stomachData),2,(0,2)),1,(1,2));
 stom = np.array(stomachData);
-#stomPRV= np.array(stomach_PRVData);
+stomLR = np.fliplr(stom)
+    
+# flip the pca data in the same manner in order to ensure the data for each point remains consistent
+mag_pca_result_cubeLR = np.fliplr(mag_pca_result_cube)
+pca_result_cubeLR = np.fliplr(pca_result_cube)
 
 # Use marching cubes to obtain the surface mesh of the stomach/stomach PRV delineations
 # input 3d volume - masking data form WM
-verts, faces, normals, values = measure.marching_cubes_lewiner(stom, 50)  
+verts, faces, normals, values = measure.marching_cubes_lewiner(stomLR, 50)  
 
 #------------------ save vertex and face coordinates into txt files --------------------------------------------------------------
 #np.savetxt('C:\MPhys\\Data\\Intra Patient\\Pancreas\\3D Vis\\stomachVerts01.txt',verts, fmt = '%0.6f')
@@ -60,7 +64,7 @@ for i in range(faces.shape[0]):
 #np.savetxt('C:\MPhys\\Data\\Intra Patient\\Pancreas\\3D Vis\\stomachFaces01.txt',facesnew.astype(int), fmt = '%0.0f')
 #np.savetxt('C:\MPhys\\Visualisation\\stomachFaces01.txt',facesnew.astype(int), fmt = '%0.0f')
 #--------------------------------------------------------------------------------------------------------------------------------
-
+'''
 # Display resulting triangular mesh
 fig = plt.figure(figsize=(10,10))
 ax = fig.add_subplot(111, projection='3d')
@@ -82,7 +86,7 @@ ax.set_zlim(verts[:,2].min() - 2, verts[:,2].max() + 2)
 
 plt.tight_layout()
 plt.show()
-
+'''
 #----------------- assign PCA colour values --------------------------------------------------------------------------------------
 #find the PCA vector values that correspond with mesh vertices
 #put the PCA values that match the rounded vertex values into an array
@@ -92,19 +96,19 @@ coloursMag = np.ndarray(shape = (verts.shape[0]))
 verts_round = (np.around(verts)).astype(int)
 
 # fill a linear array of the magnitude of the PCA components
-PCAmagnitudes = np.zeros((pca_result_cube.shape[0],pca_result_cube.shape[1],pca_result_cube.shape[2]));
+PCAmagnitudes = np.zeros((pca_result_cubeLR.shape[0],pca_result_cubeLR.shape[1],pca_result_cubeLR.shape[2]));
 
-for x in range(pca_result_cube.shape[0]):
-    for y in range(pca_result_cube.shape[1]):
-        for z in range(pca_result_cube.shape[2]):
-            PCAmagnitudes[x,y,z] = magnitude(pca_result_cube[x,y,z,0,0],pca_result_cube[x,y,z,0,1],pca_result_cube[x,y,z,0,2]);
+for x in range(pca_result_cubeLR.shape[0]):
+    for y in range(pca_result_cubeLR.shape[1]):
+        for z in range(pca_result_cubeLR.shape[2]):
+            PCAmagnitudes[x,y,z] = magnitude(pca_result_cubeLR[x,y,z,0,0],pca_result_cubeLR[x,y,z,0,1],pca_result_cubeLR[x,y,z,0,2]);
 
 for x1 in range(verts.shape[0]):
     coloursMag[x1] = PCAmagnitudes[verts_round[x1,0],verts_round[x1,1],verts_round[x1,2]];
 
 if toggle:
     for x2 in range(verts.shape[0]):
-        coloursMag[x2] = mag_pca_result_cube[verts_round[x2,0],verts_round[x2,1],verts_round[x2,2],0];
+        coloursMag[x2] = mag_pca_result_cubeLR[verts_round[x2,0],verts_round[x2,1],verts_round[x2,2],0];
 
 scaler = MinMaxScaler();
 coloursMag = scaler.fit_transform(coloursMag.reshape(-1,1));
@@ -126,7 +130,7 @@ for x in range(verts.shape[0]):
 
 # Do the file writing here
 #wrlFile = open('C:\MPhys\\Visualisation\\stomachPCA_mag.wrl','w');
-wrlFile = open('C:\MPhys\\Data\\Intra Patient\\Stomach\\3D Vis\\pcaMagStomach07.wrl','w');
+wrlFile = open('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\pcaMagPanc01.wrl','w');
 #wrlFile = open('C:\MPhys\\Visualisation\\stomachPCA_mag.wrl','w');
 wrlFile.write('#VRML V2.0 utf8\nWorldInfo {title "stomach-PCA-VRML"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 

@@ -3,15 +3,18 @@
 Created on Thu Mar 21 15:25:28 2019
 @author: Eleanor
 """
-import plotly
-plotly.tools.set_credentials_file(username='eleanor1357', api_key='oB200N0KGmaub83XuktV')
-plotly.tools.set_config_file(world_readable=True,
-                             sharing='public')
+#import plotly
+from plotly.offline import iplot, init_notebook_mode
+#plotly.tools.set_credentials_file(username='eleanor1357', api_key='oB200N0KGmaub83XuktV')
+#plotly.tools.set_config_file(world_readable=True,
+#                             sharing='public')
 import plotly.plotly as py
 import plotly.graph_objs as go
 from skimage import measure
 import numpy as np
 import time
+import os
+import plotly.io as pio
 import nibabel as nib
 from sklearn.preprocessing import MinMaxScaler
 from matplotlib import cm
@@ -24,26 +27,31 @@ def swap(x,y):
 
 tStart = time.time();
 np.set_printoptions(precision=4, suppress=True);
+init_notebook_mode(connected=True)
 #---------- load data and create mesh ----------------------------
-#mag_pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Panc01StomachCropMagnitudePCAcube.npy');
-mag_pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaMagStomach05.npy');
-#pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Stomach04PCAcube.npy');
-pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaStomach05.npy') 
+#mag_pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Stomach07StomachCropMagnitudePCAcube.npy');
+mag_pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\pcaMagStomach07.npy');
+#pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Stomach07PCAcube.npy');
+pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\pcaStomach07.npy') 
 
 # Read in the delineation nifti files using nibabel
 #stomach = nib.load('C:\MPhys\\stomach.nii');
-stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Stomach05\\stomachMask.nii')
+stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\Stomach07\\stomachMask.nii')
 stomachHdr = stomach.header;
 stomachData = stomach.get_fdata();
 
 # numpy array conversion
-# stom = np.rot90(np.rot90(np.array(stomachData),2,(0,2)),1,(1,2));
+# flip the stomach data to allow orientate the mesh correctly
 stom = np.array(stomachData);
 stomF = np.flipud(stom)
 stomLR = np.fliplr(stom)
 stomZF = np.ndarray(shape = (stom.shape[0],stom.shape[1],stom.shape[2]))
 for r in range(stom.shape[1]):
     stomZF[:,r,:] = np.fliplr(stom[:,r,:])
+    
+# flip the pca data in the same manner in order to ensure the data for each point remains consistent
+mag_pca_result_cubeLR = np.fliplr(mag_pca_result_cube)
+pca_result_cubeLR = np.fliplr(pca_result_cube)
     
 ##################### functions ###############################
 
@@ -57,7 +65,7 @@ def tri_indices(faces):
 
 # Use marching cubes to obtain the surface mesh of the stomach/stomach PRV delineations
 # input 3d volume - masking data form WM
-verts, faces, normals, values = measure.marching_cubes_lewiner(stomZF, 50)
+verts, faces, normals, values = measure.marching_cubes_lewiner(stomLR, 50)
 x,y,z = zip(*verts)
 x = np.array(x)
 y = np.array(y)
@@ -75,7 +83,7 @@ coloursMag = np.ndarray(shape = (verts.shape[0]))
 verts_round = (np.around(verts)).astype(int)
 
 for x2 in range(verts.shape[0]):
-    coloursMag[x2] = mag_pca_result_cube[verts_round[x2,0],verts_round[x2,1],verts_round[x2,2],0];
+    coloursMag[x2] = mag_pca_result_cubeLR[verts_round[x2,0],verts_round[x2,1],verts_round[x2,2],0];
 
 scaler = MinMaxScaler();
 coloursMag = scaler.fit_transform(coloursMag.reshape(-1,1));
@@ -102,7 +110,7 @@ color_trace = go.Scatter(x=[0 for _ in colours],
 data = [go.Mesh3d(x=x,y=y,z=z, i=I,j=J,k=K, vertexcolor = colours), color_trace]
 
 fig = go.Figure(data=data)
-fig['layout'].update(dict(title= 'Stomach05 - PCA Magnitudes',
+fig['layout'].update(dict(title= 'Stomach07 - PCA Magnitudes',
                             xaxis = dict(type = 'linear', showticklabels = False, showgrid = False,
                                         zeroline = False,
                                         autorange = True),
@@ -111,15 +119,18 @@ fig['layout'].update(dict(title= 'Stomach05 - PCA Magnitudes',
                                         autorange = True),
                             width = 1000,
                             height = 1000,
-                            scene = dict(xaxis = dict(type = 'linear', showticklabels = False),
-                                        yaxis = dict(type = 'linear', showticklabels = False),
-                                        zaxis = dict(type = 'linear', showticklabels = False),
+                            scene = dict(xaxis = dict(type = 'linear', showticklabels = False, showline = False, title=dict(font = dict(size = 16), text = 'L-R')),
+                                        yaxis = dict(type = 'linear', showticklabels = False, showline = False, title=dict(font = dict(size = 16), text = 'A-P')),
+                                        zaxis = dict(type = 'linear', showticklabels = False, showline = False, title=dict(font = dict(size = 16), text = 'C-C')),
                                         aspectratio=dict(x=1, y=1, z=0.75),
-                                        camera=dict(up = dict(x=0.1082,y=0.9928,z=0.0519), eye=dict(x=0.2767, y=-0.1364, z=2.0326), center=dict(x=0,y=0,z=0)
+                                        camera=dict(up = dict(x=-0.03633217288903984,y=-0.004015439228662765,z=-0.9993317014189844), 
+                                                    eye=dict(x=-1.881700593715694, y=0.1528656814813807, z=0.06779775758734227), 
+                                                    center=dict(x=0,y=0,z=0)
                                         )
                            )
                      ))
-py.plot(fig, filename = 'Stomach05T - PCA Magnitudes.html')
+#py.plot(fig, filename = 'Stomach07 - PCA Magnitudes.html')
+pio.write_image(fig, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images\\MagStomach07.png')
 
 #-------------------------------------------------- x,y,z graph plotting ------------------------------------------------------
 #find the PCA vector values that correspond with mesh vertices
@@ -135,9 +146,9 @@ colours_z = np.ndarray(shape = (verts.shape[0],3))
 verts_round = (np.around(verts)).astype(int)
 
 for i in range(verts.shape[0]):
-    pca_x[i] = pca_result_cube[verts_round[i,0],verts_round[i,1],verts_round[i,2],0,0];
-    pca_y[i] = pca_result_cube[verts_round[i,0],verts_round[i,1],verts_round[i,2],0,1];
-    pca_z[i] = pca_result_cube[verts_round[i,0],verts_round[i,1],verts_round[i,2],0,2];
+    pca_x[i] = pca_result_cubeLR[verts_round[i,0],verts_round[i,1],verts_round[i,2],0,0];
+    pca_y[i] = pca_result_cubeLR[verts_round[i,0],verts_round[i,1],verts_round[i,2],0,1];
+    pca_z[i] = pca_result_cubeLR[verts_round[i,0],verts_round[i,1],verts_round[i,2],0,2];
 
 scaler = MinMaxScaler();
 
@@ -171,48 +182,73 @@ figx = go.Figure(data = datax)
 figy = go.Figure(data = datay)
 figz = go.Figure(data = dataz)
 
-figx['layout'].update(dict(title= 'Stomach05 - x component',
+figx['layout'].update(dict(title= 'Stomach07 - x component',
                             xaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
                             yaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
                             width = 1000,
                             height = 1000,
-                            scene = dict(xaxis = dict(type = 'linear', showticklabels = False),
-                                        yaxis = dict(type = 'linear', showticklabels = False),
-                                        zaxis = dict(type = 'linear', showticklabels = False),
+                            scene = dict(xaxis = dict(type = 'linear', showticklabels = False, showline = False, title=dict(font = dict(size = 16), text = 'L-R')),
+                                        yaxis = dict(type = 'linear', showticklabels = False, showline = False, title=dict(font = dict(size = 16), text = 'A-P')),
+                                        zaxis = dict(type = 'linear', showticklabels = False, showline = False, title=dict(font = dict(size = 16), text = 'C-C')),
                                         aspectratio=dict(x=1, y=1, z=0.75),
-                                        camera=dict(up = dict(x=0.1082,y=0.9928,z=0.0519), eye=dict(x=0.2767, y=-0.1364, z=2.0326), center=dict(x=0,y=0,z=0)
+                                        camera=dict(up = dict(x=-0.03633217288903984,y=-0.004015439228662765,z=-0.9993317014189844), 
+                                                    eye=dict(x=-1.881700593715694, y=0.1528656814813807, z=0.06779775758734227), 
+                                                    center=dict(x=0,y=0,z=0)
                                         )
                            )
                      ))
 
-figy['layout'].update(dict(title= 'Stomach05 - y component',
+figy['layout'].update(dict(title= 'Stomach07 - y component',
                             xaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
                             yaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
                             width = 1000,
                             height = 1000,
-                            scene = dict(xaxis = dict(type = 'linear', showticklabels = False),
-                                        yaxis = dict(type = 'linear', showticklabels = False),
-                                        zaxis = dict(type = 'linear', showticklabels = False),
+                            scene = dict(xaxis = dict(type = 'linear', showticklabels = False, showline = False, title=dict(font = dict(size = 16), text = 'L-R')),
+                                        yaxis = dict(type = 'linear', showticklabels = False, showline = False, title=dict(font = dict(size = 16), text = 'A-P')),
+                                        zaxis = dict(type = 'linear', showticklabels = False, showline = False, title=dict(font = dict(size = 16), text = 'C-C')),
                                         aspectratio=dict(x=1, y=1, z=0.75),
-                                        camera=dict(up = dict(x=0.1082,y=0.9928,z=0.0519), eye=dict(x=0.2767, y=-0.1364, z=2.0326), center=dict(x=0,y=0,z=0)
+                                        camera=dict(up = dict(x=-0.03633217288903984,y=-0.004015439228662765,z=-0.9993317014189844), 
+                                                    eye=dict(x=-1.881700593715694, y=0.1528656814813807, z=0.06779775758734227), 
+                                                    center=dict(x=0,y=0,z=0)
                                         )
                            )
                      ))
                                         
-figz['layout'].update(dict(title= 'Stomach05 - z component',
+figz['layout'].update(dict(title= 'Stomach07 - z component',
                             xaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
                             yaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
                             width = 1000,
                             height = 1000,
-                            scene = dict(xaxis = dict(type = 'linear', showticklabels = False),
-                                        yaxis = dict(type = 'linear', showticklabels = False),
-                                        zaxis = dict(type = 'linear', showticklabels = False),
+                            scene = dict(xaxis = dict(type = 'linear', showticklabels = False, showline = False, title=dict(font = dict(size = 16), text = 'L-R')),
+                                        yaxis = dict(type = 'linear', showticklabels = False, showline = False, title=dict(font = dict(size = 16), text = 'A-P')),
+                                        zaxis = dict(type = 'linear', showticklabels = False, showline = False, title=dict(font = dict(size = 16), text = 'C-C')),
                                         aspectratio=dict(x=1, y=1, z=0.75),
-                                        camera=dict(up = dict(x=0.1082,y=0.9928,z=0.0519), eye=dict(x=0.2767, y=-0.1364, z=2.0326), center=dict(x=0,y=0,z=0)
+                                        camera=dict(up = dict(x=-0.03633217288903984,y=-0.004015439228662765,z=-0.9993317014189844), 
+                                                    eye=dict(x=-1.881700593715694, y=0.1528656814813807, z=0.06779775758734227), 
+                                                    center=dict(x=0,y=0,z=0)
                                         )
                            )
                      ))
 
-py.plot(figx, filename = 'Stomach05T - x component')
-py.plot(figy, filename = 'Stomach05T - y component')
-py.plot(figz, filename = 'Stomach05T - z component')
+#py.plot(figx, filename = 'Stomach07 - x component')
+#py.plot(figy, filename = 'Stomach07 - y component')
+#py.plot(figz, filename = 'Stomach07 - z component')
+pio.write_image(figx, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images\\Stomach07_x.png')
+pio.write_image(figy, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images\\Stomach07_y.png')
+pio.write_image(figz, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images\\Stomach07_z.png')
+
+#################################### camera angles for different viewing positions ############################################
+# Sagital 
+# camera=dict(up = dict(x=-0.03633217288903984,y=-0.004015439228662765,z=-0.9993317014189844), 
+# eye=dict(x=-1.881700593715694, y=0.1528656814813807, z=0.06779775758734227), 
+# center=dict(x=0,y=0,z=0)
+
+# Coronal
+# camera=dict(up = dict(x=-0.011455618266574456,y=-0.9975837119660635,z=-0.06852376544047856), 
+# eye=dict(x=0.06200160889429364, y=0.13201202243235813, z=-1.9322246708791035), 
+# center=dict(x=0,y=0,z=0)
+
+# Axial
+# camera=dict(up = dict(x=0.03365420394570083,y=-0.05234166340585397,z=-0.9980619944816503), 
+# eye=dict(x=0.09704288607409108, y=1.9328022472442892, z=-0.0980902830858387), 
+# center=dict(x=0,y=0,z=0)

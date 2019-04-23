@@ -29,14 +29,14 @@ tStart = time.time();
 np.set_printoptions(precision=4, suppress=True);
 init_notebook_mode(connected=True)
 #---------- load data and create mesh ----------------------------
-#mag_pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Stomach07StomachCropMagnitudePCAcube.npy');
-mag_pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\pcaMagStomach07.npy');
-#pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Stomach07PCAcube.npy');
-pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\pcaStomach07.npy') 
+#mag_pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Stomach02StomachCropMagnitudePCAcube.npy');
+mag_pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\pcaMagStomach02.npy');
+#pca_result_cube = np.load('C:\MPhys\\Data\\PCA results\\Stomach02PCAcube.npy');
+pca_result_cube = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\pcaStomach02.npy') 
 
 # Read in the delineation nifti files using nibabel
 #stomach = nib.load('C:\MPhys\\stomach.nii');
-stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\Stomach07\\stomachMask.nii')
+stomach = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\Stomach02\\stomachMask.nii')
 stomachHdr = stomach.header;
 stomachData = stomach.get_fdata();
 
@@ -110,7 +110,7 @@ color_trace = go.Scatter(x=[0 for _ in colours],
 data = [go.Mesh3d(x=x,y=y,z=z, i=I,j=J,k=K, vertexcolor = colours), color_trace]
 
 fig = go.Figure(data=data)
-fig['layout'].update(dict(title= 'Stomach07 - PCA Magnitudes',
+fig['layout'].update(dict(title= 'Stomach02 - PCA Magnitudes',
                             xaxis = dict(type = 'linear', showticklabels = False, showgrid = False,
                                         zeroline = False,
                                         autorange = True),
@@ -129,8 +129,8 @@ fig['layout'].update(dict(title= 'Stomach07 - PCA Magnitudes',
                                         )
                            )
                      ))
-#py.plot(fig, filename = 'Stomach07 - PCA Magnitudes.html')
-pio.write_image(fig, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images\\MagStomach07.png')
+py.plot(fig, filename = 'Stomach02 - PCA Magnitudes.html')
+#pio.write_image(fig, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images\\MagStomach02.png')
 
 #-------------------------------------------------- x,y,z graph plotting ------------------------------------------------------
 #find the PCA vector values that correspond with mesh vertices
@@ -182,7 +182,7 @@ figx = go.Figure(data = datax)
 figy = go.Figure(data = datay)
 figz = go.Figure(data = dataz)
 
-figx['layout'].update(dict(title= 'Stomach07 - x component',
+figx['layout'].update(dict(title= 'Stomach02 - x component',
                             xaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
                             yaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
                             width = 1000,
@@ -198,7 +198,7 @@ figx['layout'].update(dict(title= 'Stomach07 - x component',
                            )
                      ))
 
-figy['layout'].update(dict(title= 'Stomach07 - y component',
+figy['layout'].update(dict(title= 'Stomach02 - y component',
                             xaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
                             yaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
                             width = 1000,
@@ -214,7 +214,7 @@ figy['layout'].update(dict(title= 'Stomach07 - y component',
                            )
                      ))
                                         
-figz['layout'].update(dict(title= 'Stomach07 - z component',
+figz['layout'].update(dict(title= 'Stomach02 - z component',
                             xaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
                             yaxis = dict(type = 'linear', showticklabels = False, showgrid = False, zeroline = False, autorange = True),
                             width = 1000,
@@ -230,12 +230,12 @@ figz['layout'].update(dict(title= 'Stomach07 - z component',
                            )
                      ))
 
-#py.plot(figx, filename = 'Stomach07 - x component')
-#py.plot(figy, filename = 'Stomach07 - y component')
-#py.plot(figz, filename = 'Stomach07 - z component')
-pio.write_image(figx, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images\\Stomach07_x.png')
-pio.write_image(figy, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images\\Stomach07_y.png')
-pio.write_image(figz, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images\\Stomach07_z.png')
+#py.plot(figx, filename = 'Stomach02 - x component')
+#py.plot(figy, filename = 'Stomach02 - y component')
+#py.plot(figz, filename = 'Stomach02 - z component')
+#pio.write_image(figx, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images\\Stomach02_x.png')
+#pio.write_image(figy, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images\\Stomach02_y.png')
+#pio.write_image(figz, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images\\Stomach02_z.png')
 
 #################################### camera angles for different viewing positions ############################################
 # Sagital 

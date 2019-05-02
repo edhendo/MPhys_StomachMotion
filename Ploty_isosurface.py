@@ -83,6 +83,7 @@ coloursMag = np.ndarray(shape = (verts.shape[0]))
 verts_round = (np.around(verts)).astype(int)
 
 for x2 in range(verts.shape[0]):
+    # [,,,0] = 1st PC, [,,,1] = 2nd PC
     coloursMag[x2] = mag_pca_result_cubeLR[verts_round[x2,0],verts_round[x2,1],verts_round[x2,2],0];
 
 scaler = MinMaxScaler();
@@ -93,6 +94,10 @@ colourmap = cm.YlOrRd(coloursMag);
 for X in range(verts.shape[0]):
     for l in range(3):
         colours[X,l] = colourmap[X,0,l];
+
+# import colour values
+for n1 in [1,2,4,5,6,7]:
+    locals()["coloursMag"+str(n1)] = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\colours_x{0}.npy'.format(n1))
 
 color_trace = go.Scatter(x=[0 for _ in colours],
                             y=[0 for _ in colours],
@@ -107,7 +112,7 @@ color_trace = go.Scatter(x=[0 for _ in colours],
                                 )
                             )    
 
-data = [go.Mesh3d(x=x,y=y,z=z, i=I,j=J,k=K, vertexcolor = colours), color_trace]
+data = [go.Mesh3d(x=x,y=y,z=z, i=I,j=J,k=K, vertexcolor = coloursMag2), color_trace]
 
 fig = go.Figure(data=data)
 fig['layout'].update(dict(title= 'Stomach02 - PCA Magnitudes',
@@ -122,7 +127,7 @@ fig['layout'].update(dict(title= 'Stomach02 - PCA Magnitudes',
                             scene = dict(xaxis = dict(type = 'linear', showticklabels = False, showline = False, title=dict(font = dict(size = 16), text = 'L-R')),
                                         yaxis = dict(type = 'linear', showticklabels = False, showline = False, title=dict(font = dict(size = 16), text = 'A-P')),
                                         zaxis = dict(type = 'linear', showticklabels = False, showline = False, title=dict(font = dict(size = 16), text = 'C-C')),
-                                        aspectratio=dict(x=1, y=1, z=0.75),
+                                        aspectratio=dict(x=1, y=1.1719, z=1.1719),
                                         camera=dict(up = dict(x=-0.03633217288903984,y=-0.004015439228662765,z=-0.9993317014189844), 
                                                     eye=dict(x=-1.881700593715694, y=0.1528656814813807, z=0.06779775758734227), 
                                                     center=dict(x=0,y=0,z=0)
@@ -136,6 +141,7 @@ py.plot(fig, filename = 'Stomach02 - PCA Magnitudes.html')
 #find the PCA vector values that correspond with mesh vertices
 #put the PCA values that match the rounded vertex values into an array
 # separate x, y and z components here
+'''
 pca_x = np.ndarray(shape = (verts.shape[0]))
 pca_y = np.ndarray(shape = (verts.shape[0]))
 pca_z = np.ndarray(shape = (verts.shape[0]))
@@ -167,16 +173,22 @@ for j in range(verts.shape[0]):
         colours_x[j,rgb] = colourmap_x[j,0,rgb];
         colours_y[j,rgb] = colourmap_y[j,0,rgb];
         colours_z[j,rgb] = colourmap_z[j,0,rgb];
-        
+'''   
+# import colour values
+for n in [1,2,4,5,6,7]:
+    locals()["colours_x"+str(n)] = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\colours_x{0}.npy'.format(n))
+    locals()["colours_y"+str(n)] = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\colours_y{0}.npy'.format(n))
+    locals()["colours_z"+str(n)] = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\colours_z{0}.npy'.format(n))
+    
 color_trace2 = go.Scatter(x=[0 for _ in colours], y=[0 for _ in colours], mode='markers',
                             marker= dict(colorscale= 'YlOrRd', reversescale = True, size=1,
                                 colorbar = dict(x=0.9199, y=0.5, len = 0.5), color=colours, showscale=True,
                                 )
                             ) 
 
-datax = [go.Mesh3d(x=x,y=y,z=z, i=I,j=J,k=K, vertexcolor = colours_x), color_trace2]
-datay = [go.Mesh3d(x=x,y=y,z=z, i=I,j=J,k=K, vertexcolor = colours_y), color_trace2]
-dataz = [go.Mesh3d(x=x,y=y,z=z, i=I,j=J,k=K, vertexcolor = colours_z), color_trace2]
+datax = [go.Mesh3d(x=x,y=y,z=z, i=I,j=J,k=K, vertexcolor = colours_x4), color_trace2]
+datay = [go.Mesh3d(x=x,y=y,z=z, i=I,j=J,k=K, vertexcolor = colours_y4), color_trace2]
+dataz = [go.Mesh3d(x=x,y=y,z=z, i=I,j=J,k=K, vertexcolor = colours_z4), color_trace2]
 
 figx = go.Figure(data = datax)
 figy = go.Figure(data = datay)

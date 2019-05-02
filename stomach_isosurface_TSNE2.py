@@ -78,9 +78,9 @@ np.set_printoptions(precision=4, suppress=True)
 # First extract all required warp vectors from the respective nifti images
 counter = 0
 for i in range(1,11):
-    locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\Stomach05\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
+    locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\Stomach04\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
     locals()['hdr'+str(i)] = locals()['img'+str(i)].header
-    locals()['data'+str(i)] = locals()['img'+str(i)].get_fdata()
+    locals()['data'+str(i)] = np.flipud(np.array(locals()['img'+str(i)].get_fdata())); # flip data here!! from correct output orientataion
     counter = counter + 1
     print("extracted warp vectors from DVF " + str(counter) + " out of 9")
     if counter == 10:
@@ -88,14 +88,13 @@ for i in range(1,11):
 
 #------------------------------------------------------------------------------     
 # Read in the delineation nifti files using nibabel
-stomach = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\Stomach05\\stomachMask.nii');
+stomach = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\Stomach04\\stomachMask.nii');
 stomachHdr = stomach.header;
 stomachData = stomach.get_fdata();
 
-# numpy array conversion
-#stom = np.rot90(np.rot90(np.array(stomachData),2,(0,2)),1,(1,2));
+# numpy array conversion and flip to match the data and patient
 stom = np.flipud(np.array(stomachData));
-#stomPRV= np.array(stomach_PRVData);
+
 
 # Use marching cubes to obtain the surface mesh of the stomach/stomach PRV delineations
 # input 3d volume - masking data form WM
@@ -196,7 +195,7 @@ ax.set_zlim(vertsOuter[:,2].min() - 2, vertsOuter[:,2].max() + 2)
 plt.tight_layout()
 plt.show()
 #------------------------------------------------------------------------------           
-# Now strip out the stomach data alone and arrange data for pca here
+# Now strip out the stomach data alone and arrange data for tsne here
 useThickShell = True;
 
 if (useThickShell):
@@ -475,20 +474,30 @@ plt.show();
 #------------------------------------------------------------------------------
 # Now assign colour values to each of the t-SNE clusters
 tsne_vertex_colours5 = np.ndarray((verts.shape[0],3));
-tsne_vertex_colours6 = np.ndarray((verts.shape[0],3));
+#tsne_vertex_colours6 = np.ndarray((verts.shape[0],3));
 #tsne_vertex_colours7 = np.ndarray((verts.shape[0],3));
 
 for i in range(verts.shape[0]):
-    for rgb in range(3):
-        tsne_vertex_colours5[i,rgb] = cm.Set1(kmeans5.labels_[i])[rgb];
-        tsne_vertex_colours6[i,rgb] = cm.Set1(kmeans6.labels_[i])[rgb];
+    if kmeans5.labels_[i] == 0:
+        tsne_vertex_colours5[i] = [60/255,68/255,216/255];
+    if kmeans5.labels_[i] == 1:
+        tsne_vertex_colours5[i] = [16/255,140/255,31/255];
+    if kmeans5.labels_[i] == 2:
+        tsne_vertex_colours5[i] = [173/255,19/255,19/255];
+    if kmeans5.labels_[i] == 3:
+        tsne_vertex_colours5[i] = [255/255,246/255,7/255];
+    if kmeans5.labels_[i] == 4:
+        tsne_vertex_colours5[i] = [139/255,19/255,191/255];
+    #for rgb in range(3):
+        #tsne_vertex_colours5[i,rgb] = cm.Set1(kmeans5.labels_[i])[rgb];
+        #tsne_vertex_colours6[i,rgb] = cm.Set1(kmeans6.labels_[i])[rgb];
         #tsne_vertex_colours7[i,rgb] = cm.Set1(kmeans7.labels_[i])[rgb];
 
 #------------------------------------------------------------------------------
 ######################## Perform VRML file write here #########################
 
-wrlFile5 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach05\\stomach_shell_clustered5_interpolated_thick_udFlipped.wrl','w');
-wrlFile5.write('#VRML V2.0 utf8\nWorldInfo {title "stomach_shell_clustered5_interpolated_thick"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
+wrlFile5 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach04\\stomach_shell_clustered5_interpolated_thick_allFlipped_final.wrl','w');
+wrlFile5.write('#VRML V2.0 utf8\nWorldInfo {title "stomach_shell_clustered5_interpolated_thick_allFlipped_final"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.0 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
     for j in range(verts.shape[1]):
@@ -514,8 +523,8 @@ wrlFile5.write("	]\n	}\n}");
 wrlFile5.close();
 
 '''
-wrlFile6 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach05\\stomach_shell_clustered6_interpolated_thick.wrl','w');
-wrlFile6.write('#VRML V2.0 utf8\nWorldInfo {title "stomach_shell_clustered5_interpolated_thick"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
+wrlFile6 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach04\\stomach_shell_clustered6_interpolated_thick.wrl','w');
+wrlFile6.write('#VRML V2.0 utf8\nWorldInfo {title "stomach_shell_clustered5_interpolated_thick"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.0 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
     for j in range(verts.shape[1]):
@@ -540,9 +549,9 @@ wrlFile6.write("	]\n	}\n}");
 wrlFile6.close();
 
 
-wrlFile7 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach05\\just_shell_clustered7.wrl','w');
+wrlFile7 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach04\\just_shell_clustered7.wrl','w');
 #wrlFile7 = open('D:\data\\Pancreas\\MPhys\\TSNE results\\stomachTSNE.wrl','w');
-wrlFile7.write('#VRML V2.0 utf8\nWorldInfo {title "just_shell_clustered7"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
+wrlFile7.write('#VRML V2.0 utf8\nWorldInfo {title "just_shell_clustered7"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.0 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
     for j in range(verts.shape[1]):

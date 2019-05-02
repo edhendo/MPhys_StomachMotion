@@ -475,20 +475,20 @@ plt.show();
 #------------------------------------------------------------------------------
 # Now assign colour values to each of the t-SNE clusters
 tsne_vertex_colours5 = np.ndarray((verts.shape[0],3));
-tsne_vertex_colours6 = np.ndarray((verts.shape[0],3));
+#tsne_vertex_colours6 = np.ndarray((verts.shape[0],3));
 #tsne_vertex_colours7 = np.ndarray((verts.shape[0],3));
 
 for i in range(verts.shape[0]):
     for rgb in range(3):
         tsne_vertex_colours5[i,rgb] = cm.Set1(kmeans5.labels_[i])[rgb];
-        tsne_vertex_colours6[i,rgb] = cm.Set1(kmeans6.labels_[i])[rgb];
+        #tsne_vertex_colours6[i,rgb] = cm.Set1(kmeans6.labels_[i])[rgb];
         #tsne_vertex_colours7[i,rgb] = cm.Set1(kmeans7.labels_[i])[rgb];
 
 #------------------------------------------------------------------------------
 ######################## Perform VRML file write here #########################
 
 wrlFile5 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach05\\stomach_shell_clustered5_interpolated_thick_udFlipped.wrl','w');
-wrlFile5.write('#VRML V2.0 utf8\nWorldInfo {title "stomach_shell_clustered5_interpolated_thick"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
+wrlFile5.write('#VRML V2.0 utf8\nWorldInfo {title "stomach_shell_clustered5_interpolated_thick"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.0 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
     for j in range(verts.shape[1]):
@@ -515,7 +515,7 @@ wrlFile5.close();
 
 '''
 wrlFile6 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach05\\stomach_shell_clustered6_interpolated_thick.wrl','w');
-wrlFile6.write('#VRML V2.0 utf8\nWorldInfo {title "stomach_shell_clustered5_interpolated_thick"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
+wrlFile6.write('#VRML V2.0 utf8\nWorldInfo {title "stomach_shell_clustered5_interpolated_thick"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.0 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
     for j in range(verts.shape[1]):
@@ -542,7 +542,7 @@ wrlFile6.close();
 
 wrlFile7 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach05\\just_shell_clustered7.wrl','w');
 #wrlFile7 = open('D:\data\\Pancreas\\MPhys\\TSNE results\\stomachTSNE.wrl','w');
-wrlFile7.write('#VRML V2.0 utf8\nWorldInfo {title "just_shell_clustered7"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.1 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
+wrlFile7.write('#VRML V2.0 utf8\nWorldInfo {title "just_shell_clustered7"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.0 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
     for j in range(verts.shape[1]):

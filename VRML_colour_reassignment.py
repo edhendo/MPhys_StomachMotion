@@ -20,17 +20,17 @@ def colourSwap(x):
     purple = [0.545098,0.074510,0.749020];
     # rewire desired swaps here
     if (x[0] == blue[0]):
-        return green;
+        return blue;
     if (x[0] == green[0]):
-        return red;
-    if (x[0] == red[0]):
         return yellow;
+    if (x[0] == red[0]):
+        return red;
     if (x[0] == yellow[0]):
         return purple;
     if (x[0] == purple[0]):
-        return blue;
+        return green;
     
-vrml = open('C:\MPhys\\Visualisation\\TSNE\\Panc01\\stomach_shell_clustered5_interpolated_thick_allFlipped_final.wrl','r');
+vrml = open('C:\MPhys\\Visualisation\\TSNE\\Stomach02\\stomach_shell_clustered5_interpolated_thick_allFlipped_final.wrl','r');
 vrmlContents = vrml.readlines();
 # find the colour data here
 for i in range(len(vrmlContents)):
@@ -51,7 +51,7 @@ for k in range(colourStart+1,colourEnd):
     newColours[colourNum] = colourSwap(oldColours[colourNum]);
     colourNum += 1;
 # write new file here
-vrmlNew = open('C:\MPhys\\Visualisation\\TSNE\\Panc01\\stomach_shell_clustered5_interpolated_thick_allFlipped_final_recoloured.wrl','w');
+vrmlNew = open('C:\MPhys\\Visualisation\\TSNE\\Stomach02\\stomach_shell_clustered5_interpolated_thick_allFlipped_final_recoloured.wrl','w');
 for Ed in range(colourStart+1):
     vrmlNew.write(vrmlContents[Ed]);
 for Edward in range(newColours.shape[0]):

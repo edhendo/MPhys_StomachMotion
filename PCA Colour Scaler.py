@@ -76,49 +76,49 @@ for cake in [1,2,4,5,6,7]:
 #round vertex numbers to nearest int
 verts_round1 = (np.around(verts1)).astype(int)
 for i in range(verts1.shape[0]):
-    pca_x1[i] = pca_result_cubeLR1[verts_round1[i,0],verts_round1[i,1],verts_round1[i,2],0,0];
-    pca_y1[i] = pca_result_cubeLR1[verts_round1[i,0],verts_round1[i,1],verts_round1[i,2],0,1];
-    pca_z1[i] = pca_result_cubeLR1[verts_round1[i,0],verts_round1[i,1],verts_round1[i,2],0,2];
+    pca_x1[i] = pca_result_cubeLR1[verts_round1[i,0],verts_round1[i,1],verts_round1[i,2],1,0];
+    pca_y1[i] = pca_result_cubeLR1[verts_round1[i,0],verts_round1[i,1],verts_round1[i,2],1,1];
+    pca_z1[i] = pca_result_cubeLR1[verts_round1[i,0],verts_round1[i,1],verts_round1[i,2],1,2];
     
 # Stomach02    
 #round vertex numbers to nearest int
 verts_round2 = (np.around(verts2)).astype(int)
 for i in range(verts2.shape[0]):
-    pca_x2[i] = pca_result_cubeLR2[verts_round2[i,0],verts_round2[i,1],verts_round2[i,2],0,0];
-    pca_y2[i] = pca_result_cubeLR2[verts_round2[i,0],verts_round2[i,1],verts_round2[i,2],0,1];
-    pca_z2[i] = pca_result_cubeLR2[verts_round2[i,0],verts_round2[i,1],verts_round2[i,2],0,2];
+    pca_x2[i] = pca_result_cubeLR2[verts_round2[i,0],verts_round2[i,1],verts_round2[i,2],1,0];
+    pca_y2[i] = pca_result_cubeLR2[verts_round2[i,0],verts_round2[i,1],verts_round2[i,2],1,1];
+    pca_z2[i] = pca_result_cubeLR2[verts_round2[i,0],verts_round2[i,1],verts_round2[i,2],1,2];
     
 # Stomach04
 #round vertex numbers to nearest int
 verts_round4 = (np.around(verts4)).astype(int)
 for i in range(verts4.shape[0]):
-    pca_x4[i] = pca_result_cubeLR4[verts_round4[i,0],verts_round4[i,1],verts_round4[i,2],0,0];
-    pca_y4[i] = pca_result_cubeLR4[verts_round4[i,0],verts_round4[i,1],verts_round4[i,2],0,1];
-    pca_z4[i] = pca_result_cubeLR4[verts_round4[i,0],verts_round4[i,1],verts_round4[i,2],0,2];
+    pca_x4[i] = pca_result_cubeLR4[verts_round4[i,0],verts_round4[i,1],verts_round4[i,2],1,0];
+    pca_y4[i] = pca_result_cubeLR4[verts_round4[i,0],verts_round4[i,1],verts_round4[i,2],1,1];
+    pca_z4[i] = pca_result_cubeLR4[verts_round4[i,0],verts_round4[i,1],verts_round4[i,2],1,2];
     
 # Stomach05
 #round vertex numbers to nearest int
 verts_round5 = (np.around(verts5)).astype(int)
 for i in range(verts5.shape[0]):
-    pca_x5[i] = pca_result_cubeLR5[verts_round5[i,0],verts_round5[i,1],verts_round5[i,2],0,0];
-    pca_y5[i] = pca_result_cubeLR5[verts_round5[i,0],verts_round5[i,1],verts_round5[i,2],0,1];
-    pca_z5[i] = pca_result_cubeLR5[verts_round5[i,0],verts_round5[i,1],verts_round5[i,2],0,2];
+    pca_x5[i] = pca_result_cubeLR5[verts_round5[i,0],verts_round5[i,1],verts_round5[i,2],1,0];
+    pca_y5[i] = pca_result_cubeLR5[verts_round5[i,0],verts_round5[i,1],verts_round5[i,2],1,1];
+    pca_z5[i] = pca_result_cubeLR5[verts_round5[i,0],verts_round5[i,1],verts_round5[i,2],1,2];
     
 # Stomach06
 #round vertex numbers to nearest int
 verts_round6 = (np.around(verts6)).astype(int)
 for i in range(verts6.shape[0]):
-    pca_x6[i] = pca_result_cubeLR6[verts_round6[i,0],verts_round6[i,1],verts_round6[i,2],0,0];
-    pca_y6[i] = pca_result_cubeLR6[verts_round6[i,0],verts_round6[i,1],verts_round6[i,2],0,1];
-    pca_z6[i] = pca_result_cubeLR6[verts_round6[i,0],verts_round6[i,1],verts_round6[i,2],0,2];
+    pca_x6[i] = pca_result_cubeLR6[verts_round6[i,0],verts_round6[i,1],verts_round6[i,2],1,0];
+    pca_y6[i] = pca_result_cubeLR6[verts_round6[i,0],verts_round6[i,1],verts_round6[i,2],1,1];
+    pca_z6[i] = pca_result_cubeLR6[verts_round6[i,0],verts_round6[i,1],verts_round6[i,2],1,2];
     
 # Stomach07
 #round vertex numbers to nearest int
 verts_round7 = (np.around(verts7)).astype(int)
 for i in range(verts7.shape[0]):
-    pca_x7[i] = pca_result_cubeLR7[verts_round7[i,0],verts_round7[i,1],verts_round7[i,2],0,0];
-    pca_y7[i] = pca_result_cubeLR7[verts_round7[i,0],verts_round7[i,1],verts_round7[i,2],0,1];
-    pca_z7[i] = pca_result_cubeLR7[verts_round7[i,0],verts_round7[i,1],verts_round7[i,2],0,2];
+    pca_x7[i] = pca_result_cubeLR7[verts_round7[i,0],verts_round7[i,1],verts_round7[i,2],1,0];
+    pca_y7[i] = pca_result_cubeLR7[verts_round7[i,0],verts_round7[i,1],verts_round7[i,2],1,1];
+    pca_z7[i] = pca_result_cubeLR7[verts_round7[i,0],verts_round7[i,1],verts_round7[i,2],1,2];
 
 #----------------- PCA colour assignment --------------------------------------------------------------------------------------
 # ------------------------------------------ xyz components   
@@ -149,9 +149,9 @@ for p in [1,2,4,5,6,7]:
 
 # save all the colour assigments
 for file in [1,2,4,5,6,7]:
-    np.save('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\colours_x{0}.npy'.format(file), locals()["colours_x"+str(file)])
-    np.save('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\colours_y{0}.npy'.format(file), locals()["colours_y"+str(file)])
-    np.save('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\colours_z{0}.npy'.format(file), locals()["colours_z"+str(file)])
+    np.save('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\colours2_x{0}.npy'.format(file), locals()["colours_x"+str(file)])
+    np.save('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\colours2_y{0}.npy'.format(file), locals()["colours_y"+str(file)])
+    np.save('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\colours2_z{0}.npy'.format(file), locals()["colours_z"+str(file)])
     
 # ------------------------------------------- magnitudes
  # Import the PCA results for all patients    
@@ -171,7 +171,7 @@ for yu in [1,2,4,5,6,7]:
 # filling arrays
 for er in [1,2,4,5,6,7]:
     for i in range((locals()["verts"+str(er)]).shape[0]):
-        (locals()["pcaMag"+str(er)])[i] = (locals()["pca_result_cubeMagLR"+str(er)])[(locals()["verts_round"+str(er)])[i,0],(locals()["verts_round"+str(er)])[i,1],(locals()["verts_round"+str(er)])[i,2],0];
+        (locals()["pcaMag"+str(er)])[i] = (locals()["pca_result_cubeMagLR"+str(er)])[(locals()["verts_round"+str(er)])[i,0],(locals()["verts_round"+str(er)])[i,1],(locals()["verts_round"+str(er)])[i,2],1];
   
 # appending all arrays to a list
 alldata2 = []
@@ -196,4 +196,4 @@ for p2 in [1,2,4,5,6,7]:
 
 # save np arrays
 for file2 in [1,2,4,5,6,7]:
-    np.save('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\coloursMag{0}.npy'.format(file2), locals()["coloursMag"+str(file2)])
+    np.save('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\coloursMag2_{0}.npy'.format(file2), locals()["coloursMag"+str(file2)])

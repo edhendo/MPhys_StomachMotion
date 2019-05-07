@@ -84,7 +84,7 @@ verts_round = (np.around(verts)).astype(int)
 
 for x2 in range(verts.shape[0]):
     # [,,,0] = 1st PC, [,,,1] = 2nd PC
-    coloursMag[x2] = mag_pca_result_cubeLR[verts_round[x2,0],verts_round[x2,1],verts_round[x2,2],0];
+    coloursMag[x2] = mag_pca_result_cubeLR[verts_round[x2,0],verts_round[x2,1],verts_round[x2,2],1];
 
 scaler = MinMaxScaler();
 coloursMag = scaler.fit_transform(coloursMag.reshape(-1,1));
@@ -97,7 +97,8 @@ for X in range(verts.shape[0]):
 
 # import colour values
 for n1 in [1,2,4,5,6,7]:
-    locals()["coloursMag"+str(n1)] = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\coloursMag{0}.npy'.format(n1))
+    # change the file name here when importing colour scales for different PC's
+    locals()["coloursMag"+str(n1)] = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\coloursMag2_{0}.npy'.format(n1))
 
 color_trace = go.Scatter(x=[0 for _ in coloursBar],
                             y=[0 for _ in coloursBar],
@@ -112,6 +113,7 @@ color_trace = go.Scatter(x=[0 for _ in coloursBar],
                                 )
                             )    
 
+# remember to change vertex colour for each patient
 data = [go.Mesh3d(x=x,y=y,z=z, i=I,j=J,k=K, vertexcolor = coloursMag7), color_trace]
 
 fig = go.Figure(data=data)
@@ -129,13 +131,13 @@ fig['layout'].update(dict(title= 'Stomach07 - PCA Magnitudes',
                                         zaxis = dict(type = 'linear', showticklabels = False, showline = False, title=dict(font = dict(size = 16), text = 'C-C')),
                                         aspectratio=dict(x=1, y=1.1719, z=1.1719),
                                         camera=dict(up = dict(x=-0.03633217288903984,y=-0.004015439228662765,z=-0.9993317014189844), 
-                                                    eye=dict(x=-1.881700593715694, y=0.1528656814813807, z=0.06779775758734227), 
+                                                    eye=dict(x=-2.0547081341585782, y=0.16692047620246656, z=0.07403122710257865), 
                                                     center=dict(x=0,y=0,z=0)
                                         )
                            )
                      ))
 #py.plot(fig, filename = 'Stomach07 - PCA Magnitudes.html')
-pio.write_image(fig, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images_Rescaled\\MagStomach07.png')
+pio.write_image(fig, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images_Rescaled\\PC_2\\MagStomach07.png')
 
 #-------------------------------------------------- x,y,z graph plotting ------------------------------------------------------
 #find the PCA vector values that correspond with mesh vertices
@@ -176,16 +178,18 @@ for j in range(verts.shape[0]):
 '''   
 # import colour values
 for n in [1,2,4,5,6,7]:
-    locals()["colours_x"+str(n)] = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\colours_x{0}.npy'.format(n))
-    locals()["colours_y"+str(n)] = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\colours_y{0}.npy'.format(n))
-    locals()["colours_z"+str(n)] = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\colours_z{0}.npy'.format(n))
+    # change the file name here when importing colour scales for different PC's
+    locals()["colours_x"+str(n)] = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\colours2_x{0}.npy'.format(n))
+    locals()["colours_y"+str(n)] = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\colours2_y{0}.npy'.format(n))
+    locals()["colours_z"+str(n)] = np.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\colours2_z{0}.npy'.format(n))
     
 color_trace2 = go.Scatter(x=[0 for _ in coloursBar], y=[0 for _ in coloursBar], mode='markers',
                             marker= dict(colorscale= 'YlOrRd', reversescale = True, size=1,
                                 colorbar = dict(x=0.9199, y=0.5, len = 0.5), color=coloursBar, showscale=True,
                                 )
-                            ) 
-
+                            )
+                            
+# remember to change vertex colour for each patient
 datax = [go.Mesh3d(x=x,y=y,z=z, i=I,j=J,k=K, vertexcolor = colours_x7), color_trace2]
 datay = [go.Mesh3d(x=x,y=y,z=z, i=I,j=J,k=K, vertexcolor = colours_y7), color_trace2]
 dataz = [go.Mesh3d(x=x,y=y,z=z, i=I,j=J,k=K, vertexcolor = colours_z7), color_trace2]
@@ -204,7 +208,7 @@ figx['layout'].update(dict(title= 'Stomach07 - x component',
                                         zaxis = dict(type = 'linear', showticklabels = False, showline = False, title=dict(font = dict(size = 16), text = 'C-C')),
                                         aspectratio=dict(x=1, y=1.1719, z=1.1719),#same aspect ratio as the scan voxels
                                         camera=dict(up = dict(x=-0.03633217288903984,y=-0.004015439228662765,z=-0.9993317014189844), 
-                                                    eye=dict(x=-1.881700593715694, y=0.1528656814813807, z=0.06779775758734227), 
+                                                    eye=dict(x=-2.0547081341585782, y=0.16692047620246656, z=0.07403122710257865), 
                                                     center=dict(x=0,y=0,z=0)
                                         )
                            )
@@ -220,7 +224,7 @@ figy['layout'].update(dict(title= 'Stomach07 - y component',
                                         zaxis = dict(type = 'linear', showticklabels = False, showline = False, title=dict(font = dict(size = 16), text = 'C-C')),
                                         aspectratio=dict(x=1, y=1.1719, z=1.1719),
                                         camera=dict(up = dict(x=-0.03633217288903984,y=-0.004015439228662765,z=-0.9993317014189844), 
-                                                    eye=dict(x=-1.881700593715694, y=0.1528656814813807, z=0.06779775758734227), 
+                                                    eye=dict(x=-2.0547081341585782, y=0.16692047620246656, z=0.07403122710257865), 
                                                     center=dict(x=0,y=0,z=0)
                                         )
                            )
@@ -236,7 +240,7 @@ figz['layout'].update(dict(title= 'Stomach07 - z component',
                                         zaxis = dict(type = 'linear', showticklabels = False, showline = False, title=dict(font = dict(size = 16), text = 'C-C')),
                                         aspectratio=dict(x=1, y=1.1719, z=1.1719),
                                         camera=dict(up = dict(x=-0.03633217288903984,y=-0.004015439228662765,z=-0.9993317014189844), 
-                                                    eye=dict(x=-1.881700593715694, y=0.1528656814813807, z=0.06779775758734227), 
+                                                    eye=dict(x=-2.0547081341585782, y=0.16692047620246656, z=0.07403122710257865), 
                                                     center=dict(x=0,y=0,z=0)
                                         )
                            )
@@ -245,9 +249,9 @@ figz['layout'].update(dict(title= 'Stomach07 - z component',
 #py.plot(figx, filename = 'Stomach07 - x component')
 #py.plot(figy, filename = 'Stomach07 - y component')
 #py.plot(figz, filename = 'Stomach07 - z component')
-pio.write_image(figx, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images_Rescaled\\Stomach07_x.png')
-pio.write_image(figy, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images_Rescaled\\Stomach07_y.png')
-pio.write_image(figz, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images_Rescaled\\Stomach07_z.png')
+pio.write_image(figx, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images_Rescaled\\PC_2\\Stomach07_x.png')
+pio.write_image(figy, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images_Rescaled\\PC_2\\Stomach07_y.png')
+pio.write_image(figz, 'C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\3D Vis\\Plotly Images_Rescaled\\PC_2\\Stomach07_z.png')
 
 #################################### camera angles for different viewing positions ############################################
 # Sagital 

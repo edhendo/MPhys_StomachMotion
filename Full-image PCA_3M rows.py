@@ -17,17 +17,17 @@ data1 =""
 np.set_printoptions(precision=4, suppress=True)
 
 # Define which scan is the reference scan, aka the maximum exhale scan
-refScanNum = 9
+refScanNum = 10
 #------------------------------------------------------------------------------
-# PANC01 has maxExhale at 9 (including the first two boxes)
-# All 9 except stomach02 = 10
+# Stomach02 has maxExhale at 9 (including the first two boxes)
+# All 9 except Stomach02 = 10
 #------------------------------------------------------------------------------
 # First extract all required warp vectors from the respective nifti images
 counter = 0
 for i in range(1,11):
     if True: #i != refScanNum: #Not needed right now since the reference scan is set to -1*averagewarp
-        locals()["img"+str(i)] = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach\\Stomach05\\warp{0}.nii'.format(i+2))
-        #locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\Stomach04\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
+        locals()["img"+str(i)] = nib.load('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\Stomach02\\warp{0}.nii'.format(i+2))
+        #locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\Stomach02\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
         locals()['hdr'+str(i)] = locals()['img'+str(i)].header
         locals()['data'+str(i)] = locals()['img'+str(i)].get_fdata()
         counter = counter + 1
@@ -77,17 +77,16 @@ pca = PCA(n_components=9) # set to N-1 components for correlated matrix PCA
 pca_result = pca.fit_transform(data)
 print("PCA completed in: " + str(np.round(time.time()-t2)) + " seconds")
 print("Explained variation per principal component: {}".format(pca.explained_variance_ratio_))
-np.save('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\EVR_Stomach05.npy',pca.explained_variance_ratio_)
+np.save('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA\\EVR_Stomach02.npy',pca.explained_variance_ratio_)
 # sklearn PCA uses the implicit covariance (correlated) matrix PCA method outlined in Sohn 2005
 
 # Now read the principle components from the PCA back into a data cube for slice by slice visualisation
 t3 = time.time()
-min_max_scaler = MinMaxScaler()
 for PCAcompIndex in range(9):
     locals()['component' + str(PCAcompIndex + 1)] = np.zeros((data1.shape[0] * data1.shape[1] * data1.shape[2]*3,1))
     for voxelNum in range(data1.shape[0] * data1.shape[1] * data1.shape[2]*3):
         locals()['component' + str(PCAcompIndex + 1)][voxelNum] = pca_result[voxelNum][PCAcompIndex]
-    locals()['scaledComponent' + str(PCAcompIndex + 1)] = min_max_scaler.fit_transform((locals()['component' + str(PCAcompIndex + 1)]).reshape(-1,1))
+    
 
 voxelNum = 0
 pca_result_cube = np.zeros((data1.shape[0],data1.shape[1],data1.shape[2],9,3))
@@ -97,7 +96,7 @@ for PCAcompIndex2 in range(9):
         for y2 in range(data1.shape[1]):
             for z2 in range(data1.shape[2]):
                     for k in range(3):
-                        pca_result_cube[x2][y2][z2][PCAcompIndex2][k] = locals()['scaledComponent' + str(PCAcompIndex2 + 1)][voxelNum]
+                        pca_result_cube[x2][y2][z2][PCAcompIndex2][k] = locals()['component' + str(PCAcompIndex2 + 1)][voxelNum]
                         voxelNum = voxelNum + 1
 
 print("Data reshaped in: " + str(np.round(time.time()-t3)) + " seconds")
@@ -106,16 +105,16 @@ print("Data reshaped in: " + str(np.round(time.time()-t3)) + " seconds")
 print("Program completed in: " + str(np.round(time.time()-tStart)) + " seconds")
 
 # Now save the resultant PCA data as .npy arrays
-np.save('C:\MPhys\\Data\\Intra Patient\\Stomach\\PCA\\pcaStomach05.npy', pca_result_cube)
-#np.save('C:\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAcube.npy', pca_result_cube)
-#np.save('C:\MPhys\\Data\\PCA results\\Stomach04PCAcube.npy', pca_result_cube)
+np.save('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA_mark2\\pcaStomach02.npy', pca_result_cube)
+#np.save('C:\MPhys\\Data\\PCA results\\niftyregStomach02StomachCropPCAcube.npy', pca_result_cube)
+#np.save('C:\MPhys\\Data\\PCA results\\Stomach02PCAcube.npy', pca_result_cube)
 # accessed through np.load(path)
 
-
+'''
 #produce graph of variance ratios
 pcomponents = np.linspace(1,9,9)
 plt.plot(pcomponents, pca.explained_variance_ratio_,'o-', markersize = 5, clip_on = False)
-plt.title('Percentage Variance - Stomach05 Stomach Crop',fontsize = 16)
+plt.title('Percentage Variance - Stomach02 Stomach Crop',fontsize = 16)
 plt.xlabel('Principal Component', fontsize = 16)
 plt.ylabel('Percentage of total variance', fontsize = 16)
 plt.ylim(0,1.0)
@@ -124,8 +123,8 @@ plt.xticks(fontsize = 14)
 plt.yticks(fontsize = 14)
 plt.grid(True)
 
-#plt.savefig('C:\MPhys\\Python_Images\\niftyregPanc01StomachCrop\\PCvariance.png')
-plt.savefig('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA Graphs and Images\\Stomach05_Variance.png')
-#plt.savefig('C:\MPhys\\Python_Images\\Stomach04\\PCvariance.png')
+#plt.savefig('C:\MPhys\\Python_Images\\niftyregStomach02StomachCrop\\PCvariance.png')
+plt.savefig('C:\MPhys\\Data\\Intra Patient\\Stomach_Interpolated\\PCA Graphs and Images\\Stomach02_Variance.png')
+#plt.savefig('C:\MPhys\\Python_Images\\Stomach02\\PCvariance.png')
 
-
+'''

@@ -17,6 +17,7 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from skimage import measure
 from matplotlib import cm
 from sklearn.manifold import TSNE
+from MulticoreTSNE import MulticoreTSNE as multiTSNE
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 from scipy.ndimage.morphology import binary_fill_holes
@@ -78,7 +79,7 @@ np.set_printoptions(precision=4, suppress=True)
 # First extract all required warp vectors from the respective nifti images
 counter = 0
 for i in range(1,11):
-    locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\Stomach02\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
+    locals()["img"+str(i)] = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\stomach04\\warp{0}.nii'.format(i+2)) # plus two for the panc deformations
     locals()['hdr'+str(i)] = locals()['img'+str(i)].header
     locals()['data'+str(i)] = np.flipud(np.array(locals()['img'+str(i)].get_fdata())); # flip data here!! from correct output orientataion
     counter = counter + 1
@@ -88,7 +89,7 @@ for i in range(1,11):
 
 #------------------------------------------------------------------------------     
 # Read in the delineation nifti files using nibabel
-stomach = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\Stomach02\\stomachMask.nii');
+stomach = nib.load('C:\MPhys\\Nifti_Images\\Stomach_Interpolated\\stomach04\\stomachMask.nii');
 stomachHdr = stomach.header;
 stomachData = stomach.get_fdata();
 
@@ -256,7 +257,7 @@ else:
 # Now perform t-SNE analysis
 
 tTSNE = time.time()
-tsneResult = TSNE(n_components=2, n_iter=50000, learning_rate=200, verbose=1).fit_transform(extracted_DVF_Data);
+tsneResult = multiTSNE(n_components=2, n_iter=2000, learning_rate=200, verbose=1).fit_transform(extracted_DVF_Data);
 print("t-SNE completed in:" + str(np.round(time.time()-tTSNE)) + " seconds")   
 
 # Now reassemble the data cube to align with the stomach model
@@ -495,8 +496,8 @@ for i in range(verts.shape[0]):
 
 #------------------------------------------------------------------------------
 ######################## Perform VRML file write here #########################
-
-wrlFile5 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach02\\stomach2_shell_clustered5_interpolated_thick_allFlipped_test.wrl','w');
+'''
+wrlFile5 = open('C:\MPhys\\Visualisation\\TSNE\\stomach04\\stomach6_shell_clustered5_interpolated_thick_allFlipped_test.wrl','w');
 wrlFile5.write('#VRML V2.0 utf8\nWorldInfo {title "stomach_shell_clustered5_interpolated_thick_allFlipped_final"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.0 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
@@ -522,8 +523,8 @@ for i in range(faces.shape[0]):
 wrlFile5.write("	]\n	}\n}");
 wrlFile5.close();
 
-'''
-wrlFile6 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach02\\stomach_shell_clustered6_interpolated_thick.wrl','w');
+
+wrlFile6 = open('C:\MPhys\\Visualisation\\TSNE\\stomach04\\stomach_shell_clustered6_interpolated_thick.wrl','w');
 wrlFile6.write('#VRML V2.0 utf8\nWorldInfo {title "stomach_shell_clustered5_interpolated_thick"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.0 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 
 for i in range(verts.shape[0]):
@@ -549,7 +550,7 @@ wrlFile6.write("	]\n	}\n}");
 wrlFile6.close();
 
 
-wrlFile7 = open('C:\MPhys\\Visualisation\\TSNE\\Stomach02\\just_shell_clustered7.wrl','w');
+wrlFile7 = open('C:\MPhys\\Visualisation\\TSNE\\stomach04\\just_shell_clustered7.wrl','w');
 #wrlFile7 = open('D:\data\\Pancreas\\MPhys\\TSNE results\\stomachTSNE.wrl','w');
 wrlFile7.write('#VRML V2.0 utf8\nWorldInfo {title "just_shell_clustered7"}\n  Shape {\n   appearance Appearance { material Material{ transparency  0.0 } }\n   geometry IndexedFaceSet {\n    coord DEF surf1 Coordinate{\n	point [\n');  
 

@@ -10,7 +10,7 @@ from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 
-#niftyregPanc01StomachCropPCAcube.npy
+pca = np.load('C:\MPhys\\Data\\PCA results\\niftyregPanc01StomachCropPCAshell.npy');
 #pca = np.load('C:\\MPhys\\Data\\Intra Patient\\Pancreas\\PCA\\pcaShellPanc01.npy')
 #plot image slice using imshow()
 #use transpose to switch to horizontal slices
@@ -29,6 +29,8 @@ def multi_slice_viewer(volume):
     ax.volume = volume #unsure of meaning
     ax.index = volume.shape[0] //2  #integer division of array length (in x) 
     ax.imshow(volume[ax.index],aspect=1.0,cmap = 'nipy_spectral')
+    plt.xlabel("L-R direction");
+    plt.ylabel("C-C direction");
     fig.canvas.mpl_connect('key_press_event',process_key)
     
 def process_key(event):
@@ -51,6 +53,5 @@ def next_slice(ax):
     ax.index = (ax.index +1) % volume.shape[0] 
     ax.images[0].set_array(volume[ax.index]) 
 
-
-#rotated = np.rot90(np.rot90(pca,2,(0,2)),1,(1,2))
-#multi_slice_viewer(rotated[:,:,:,0])
+rotated = np.rot90(np.rot90(pca,1,(1,2)),2,(0,1))
+multi_slice_viewer(rotated[:,:,:,0,0])

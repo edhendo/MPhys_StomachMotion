@@ -1,2 +1,3 @@
-# MPhysSemesterTwo
-Various code snippets for this semester's MPhys work
+# MPhys_StomachMotion
+All code and scripts for this stomach motion MPhys project
+Full file listing to be added

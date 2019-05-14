@@ -1,8 +1,11 @@
-# using_t-SNE.py
+# using_t-SNE_testing.py
 """
 Created on Tue Nov 27 12:55:47 2018
 
 @author: Edward Henderson
+
+Old t-SNE script used for testing
+
 """
 
 import numpy as np

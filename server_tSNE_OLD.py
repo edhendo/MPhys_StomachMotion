@@ -1,4 +1,5 @@
-# server_tSNE.py
+# server_tSNE_OLD.py
+# Script written to run multicore t-SNE runs on the Christie server
 """
 Created on Thu Mar 21 15:34:55 2019
 
@@ -45,7 +46,7 @@ tMatFill = time.time()
 if (toggle):
     dataMatrix = np.load('D:\data\\Pancreas\\MPhys\\TSNE results\\Stomach04data.npy');
 else:
-    dataMatrix = np.zeros((data1.shape[0]*data1.shape[1]*data1.shape[2],3*10))
+    dataMatrix = np.zeros((data1.shape[0]*data1.shape[1]*data1.shape[2],6*10)) # This final number needs to be x*10, x = num of features (x,y,z,phi,theta,r), 10 = num of DVFs
     m = 0
     xIndex = 0
     yIndex = 0
@@ -60,18 +61,12 @@ else:
                     for j in range(3):
                         dataMatrix[m][eleIndex] = locals()['data'+str(DVFnum)][x][y][z][0][j]
                         eleIndex += 1
-                    #dataMatrix[m][eleIndex] = az
-                    #eleIndex += 1
-                    #dataMatrix[m][eleIndex] = el
-                    #eleIndex += 1
-                    #dataMatrix[m][eleIndex] = r
-                    #eleIndex += 1
-                    #dataMatrix[m][eleIndex] = x    # also give it the original voxel poisitions?!
-                    #eleIndex += 1
-                    #dataMatrix[m][eleIndex] = y
-                    #eleIndex += 1
-                    #dataMatrix[m][eleIndex] = z
-                    #eleIndex += 1
+                    dataMatrix[m][eleIndex] = az
+                    eleIndex += 1
+                    dataMatrix[m][eleIndex] = el
+                    eleIndex += 1
+                    dataMatrix[m][eleIndex] = r
+                    eleIndex += 1
                 m = m + 1
     np.save('D:\data\\Pancreas\\MPhys\\TSNE results\\Stomach04data.npy', dataMatrix);
     

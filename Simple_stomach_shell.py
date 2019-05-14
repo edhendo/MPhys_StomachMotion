@@ -1,4 +1,4 @@
-# Second_stomach_shell.py
+# Simple_stomach_shell.py
 # program to obtain the stomach_PRV volume with the stomach delineation removed
 # use the scikit image package for edge detection
 """

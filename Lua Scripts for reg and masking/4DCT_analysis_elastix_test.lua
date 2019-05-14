@@ -1,22 +1,20 @@
--- 4DCT_stomach_cropping.lua
+-- 4DCT_analysis_elastix_test.lua
+  
 -- panc01 has maxExhale = 9
 maxExhale = 9
--- set path here
-path = [[D:\data\Pancreas\MPhys\Nifti_Images\niftyregPanc01StomachCrop\]]
--- first setup and crop around the Stomach_PRV delineation
+-- first setup and crop around the EXTERNAL delineation
+
 cropbox = Clipbox:new()
-cropbox:fit(wm.Delineation.Stomach_PRV,1,3) -- factor=1, dilate=1 to provide boundary around delineation
-wm.Scan[maxExhale] = wm.Scan[maxExhale]:crop(cropbox)
---[[ Exclude for now to just crop to the reference scan
+cropbox:fit(wm.Delineation.Body)
 for i = 3,12 do
   wm.Scan[i] = wm.Scan[i]:crop(cropbox)
 end
-]]
-averagewarp = field:new()
+
+averagewarp = field:new() -- average warp is the desired output here
 for j=3, 12 do
   if j ~= maxExhale then
     if not wm.Scan[j].Data.empty then -- empty check
-      if wm.Scan[j].InverseWarp.empty then wm.scan[j]:niftyreg_f3d(wm.scan[maxExhale],nil,"--rbn 128 --fbn 128 -gpu") end
+      if wm.Scan[j].InverseWarp.empty then wm.scan[j]:elastix(wm.scan[maxExhale],1,"par0047\\par0047.txt") end
     else -- Scan[j].Data is empty
       wm.Scan[j] = wm.Scan[j-1] -- copy data from previous Scan
     end
@@ -36,11 +34,11 @@ for x=13, 22 do
     wm.Scan[x].Data = wm.Scan[x-10].InverseWarp
     AVS:WARPFIELD_DISPL_COORDS(wm.scan[x-10].InverseWarp, wm.scan[x-10].InverseWarp)
     AVS:FIELD_ADD(wm.Scan[x].Data,averagewarp,wm.Scan[x].Data)
-    wm.Scan[x]:write_nifty(path .. "warp" .. tostring(x-10) .. ".nii" )
+    wm.Scan[x]:write_nifty([[D:\data\Pancreas\MPhys\Nifti_Images\panc02fixedPar0047\]] .. "warp" .. tostring(x-10) .. ".nii" )
   else
     AVS:EULERXFM(wm.Scan[x].Transform)
     wm.Scan[x].Data = averagewarp
-    wm.Scan[x]:write_nifty(path .. "warp" .. tostring(x-10) .. ".nii")
+    wm.Scan[x]:write_nifty([[D:\data\Pancreas\MPhys\Nifti_Images\panc02fixedPar0047\]] .. "warp" .. tostring(x-10) .. ".nii")
   end
 end
 
@@ -49,16 +47,5 @@ wm.Scan[23].Data=averagewarp
 AVS:EULERXFM(wm.Scan[24].Transform)
 AVS:FIELD_NORM(wm.Scan[23].Data, wm.Scan[24].Data)
 
-wm.Scan[23]:write_nifty(path .. "averageVecs.nii")
-wm.Scan[24]:write_nifty(path .. "averageNorms.nii")
-
--- Mask out required delineations 
-wm.Scan[25] = wm.Scan[maxExhale+10];
-wm.Scan[25].Data:assign(0);
-wm.Scan[25] = wm.Scan[maxExhale+10]:burn(wm.Delineation.Stomach,1,false);
-wm.Scan[25]:write_nifty(path .. "stomachMask.nii");
-wm.Scan[26] = wm.Scan[maxExhale+10];
-wm.Scan[26].Data:assign(0);
-wm.Scan[26] = wm.Scan[maxExhale+10]:burn(wm.Delineation.Stomach_PRV,1,false);
-wm.Scan[26]:write_nifty(path .. "stomach_PRVMask.nii");
-
+wm.Scan[23]:write_nifty([[D:\data\Pancreas\MPhys\Nifti_Images\panc02fixedPar0047\]] .. "averageVecs.nii")
+wm.Scan[24]:write_nifty([[D:\data\Pancreas\MPhys\Nifti_Images\panc02fixedPar0047\]] .. "averageNorms.nii")
